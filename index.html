@@ -7,121 +7,183 @@
 <meta name="description" content="Paste a token address. Find out which buyer layer you'd be — before you click buy.">
 <meta property="og:title" content="am i exit liq? · exitliq.wtf">
 <meta property="og:description" content="Paste a CA. We read the structure and tell you who buys after you.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'><path d='M2 18h5v-4h5v-4h5V6h3' stroke='%233ce88e' stroke-width='2.2' fill='none'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'><path d='M2 18h5v-4h5v-4h5V6h3' stroke='%2383ff70' stroke-width='2.2' fill='none'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+  /* ===== design tokens — cyber building inspection terminal ===== */
   :root {
-    --bg: #0a0b0d; --surface: #12141a; --surface2: #0e1014; --border: #1f232c;
-    --text: #e8eaf0; --dim: #8b90a0; --faint: #565b68;
-    --green: #3ce88e; --lime: #b9e04a; --amber: #ffb02e; --red: #ff4d5e;
+    --bg: #070908; --surface: #0e1110; --surface-raised: #141816; --surface-subtle: #101311;
+    --text-primary: #f2f0e8; --text-secondary: #929890; --text-muted: #626963;
+    --border-default: #282e2a; --border-strong: #3a423c;
+    --state-pve: #83ff70; --state-exit: #ff4764; --state-pvp: #f6c94c; --state-risk: #ff5a66; --state-neutral: #7d8580;
+    --data-link: #4de7e7; --focus: #83ff70;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace; -webkit-font-smoothing: antialiased; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text-primary);
+    font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace; -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+    background-image:
+      linear-gradient(rgba(242,240,232,.016) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(242,240,232,.016) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
   .grotesk { font-family: 'Space Grotesk', sans-serif; }
+  a { color: var(--data-link); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 2px; }
+  ::selection { background: var(--state-pve); color: #07110a; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 28px 18px 60px 18px; }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
   .logo { display: flex; align-items: center; gap: 9px; }
-  .logo b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .06em; }
-  .tagchip { font-size: 10px; color: var(--dim); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; letter-spacing: .08em; }
+  /* draw-in animations keep their resting state fully visible: only the from-frame hides */
+  .logo svg path { stroke: var(--state-pve); stroke-dasharray: 40; animation: logodraw .7s steps(7) .15s backwards; }
+  @keyframes logodraw { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+  .logo b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .06em; color: var(--text-primary); }
+  .sysbadge { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border-default); border-radius: 4px; padding: 6px 9px; letter-spacing: .08em; white-space: nowrap; }
+  .sysbadge i { width: 6px; height: 6px; border-radius: 50%; background: var(--state-pve); }
   .hero { margin: 0 0 18px 0; }
-  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px; line-height: 1.08; margin: 0 0 10px 0; letter-spacing: .01em; }
-  .hero p { font-size: 12px; color: var(--dim); line-height: 1.7; margin: 0; }
+  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.05; margin: 0 0 10px 0; letter-spacing: -.01em; }
+  .hero p { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin: 0; max-width: 46ch; }
   .inrow { display: flex; gap: 8px; margin: 18px 0 8px 0; }
-  #ca { flex: 1; min-width: 0; height: 50px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px; padding: 0 14px; outline: none; }
-  #ca:focus { border-color: #3a4150; }
-  #go { height: 50px; padding: 0 22px; border: none; border-radius: 6px; background: var(--green); color: var(--bg); font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .05em; cursor: pointer; }
+  #ca { flex: 1; min-width: 0; height: 48px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 13px; padding: 0 14px; outline: none; transition: border-color .14s; }
+  #ca::placeholder { color: var(--text-muted); }
+  #ca:focus { border-color: var(--focus); }
+  #go { height: 48px; padding: 0 24px; border: 1px solid var(--state-pve); border-radius: 4px; background: var(--state-pve); color: #07110a; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: .05em; cursor: pointer; transition: filter .14s; }
+  #go:hover { filter: brightness(1.07); }
   #go:active { transform: translateY(1px); }
-  .hint { font-size: 10px; color: var(--faint); }
-  #status { margin: 26px 0; font-size: 12px; color: var(--dim); display: none; }
+  .hint { font-size: 10px; color: var(--text-muted); }
+  #status { margin: 26px 0; font-size: 11px; color: var(--text-secondary); display: none; letter-spacing: .08em; }
   .blink { animation: bl 1.1s steps(2) infinite; } @keyframes bl { 50% { opacity: .25; } }
-  #card { display: none; margin-top: 22px; border-radius: 10px; padding: 24px 20px 20px 20px; border: 1px solid var(--border); background: var(--surface); }
-  .vhead { display: flex; justify-content: space-between; align-items: center; font-size: 10px; letter-spacing: .12em; margin-bottom: 14px; }
-  .vtitle { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 38px; line-height: 1.05; letter-spacing: .01em; margin: 0 0 12px 0; }
+  .err { color: var(--state-exit); letter-spacing: 0; }
+  /* ---- verdict panel: structural inspection report ---- */
+  #card { display: none; margin-top: 22px; position: relative; border-radius: 6px; padding: 22px 20px 20px 20px;
+    background: var(--surface); background: color-mix(in srgb, var(--sig, var(--state-neutral)) 3%, var(--surface));
+    border: 1px solid var(--border-strong); border-color: color-mix(in srgb, var(--sig, var(--state-neutral)) 40%, var(--border-default));
+    border-top: 2px solid var(--sig, var(--state-neutral)); }
+  #card.reveal { animation: reveal .2s ease-out; }
+  @keyframes reveal { from { opacity: 0; transform: translateY(6px); } }
+  .marks::before, .marks::after { content: ''; position: absolute; width: 7px; height: 7px; pointer-events: none; }
+  .marks::before { top: 8px; left: 8px; border-top: 1px solid var(--border-strong); border-left: 1px solid var(--border-strong); }
+  .marks::after { bottom: 8px; right: 8px; border-bottom: 1px solid var(--border-strong); border-right: 1px solid var(--border-strong); }
+  .vhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 10px; letter-spacing: .12em; margin-bottom: 14px; color: var(--text-secondary); }
+  .vhead .vid { color: var(--text-muted); letter-spacing: .04em; text-align: right; }
+  .vbadge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--sig, var(--state-neutral)); border: 1px solid var(--sig, var(--state-neutral)); border-radius: 3px; padding: 4px 8px; margin-bottom: 10px; }
+  .vtitle { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 33px; line-height: 1.08; letter-spacing: -.01em; margin: 0 0 12px 0; color: var(--sig, var(--text-primary)); overflow-wrap: break-word; }
   .vwhy { font-size: 13px; line-height: 1.65; margin-bottom: 16px; }
   .tiles { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 16px; }
-  .tile { background: rgba(0,0,0,.28); border-radius: 6px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .tile b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 21px; }
-  .tile span { font-size: 8px; color: var(--dim); letter-spacing: .08em; }
-  .secttl { font-size: 10px; color: var(--dim); letter-spacing: .1em; margin: 18px 0 10px 0; }
+  .tile { background: var(--surface-subtle); border: 1px solid var(--border-default); border-top: 2px solid var(--sig, var(--state-neutral)); border-radius: 4px; padding: 12px 8px 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .tile b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 23px; color: var(--sig, var(--text-primary)); }
+  .tile span { font-size: 8px; color: var(--text-secondary); letter-spacing: .1em; text-align: center; }
+  .secttl { display: flex; align-items: center; gap: 10px; font-size: 10px; color: var(--text-secondary); letter-spacing: .1em; margin: 18px 0 10px 0; }
+  .secttl::after { content: ''; flex: 1; height: 1px; background: var(--border-default); }
+  .legend { font-size: 10px; color: var(--text-muted); margin: -4px 0 8px 0; }
   .bar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .bar label { width: 118px; font-size: 10px; color: var(--dim); flex-shrink: 0; }
-  .bar .tr { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .bar .fl { height: 6px; border-radius: 3px; }
-  .bar em { width: 28px; text-align: right; font-size: 11px; font-style: normal; }
-  .stairbox { background: rgba(0,0,0,.28); border-radius: 8px; padding: 12px; }
+  .bar label { width: 118px; font-size: 10px; color: var(--text-secondary); flex-shrink: 0; }
+  .bar .tr { flex: 1; height: 8px; background: var(--surface-subtle); border: 1px solid var(--border-default); overflow: hidden; }
+  .bar .fl { height: 100%; background: var(--sig, var(--state-neutral)); }
+  .bar em { width: 30px; text-align: right; font-size: 11px; font-style: normal; }
+  .stairbox { background: var(--surface-subtle); border: 1px solid var(--border-default); border-radius: 4px; padding: 12px; }
+  #card .stairbox path.mainpath { stroke-dasharray: 1400; animation: chartdraw .55s ease-out; }
+  @keyframes chartdraw { from { stroke-dashoffset: 1400; } to { stroke-dashoffset: 0; } }
+  .prow { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; color: var(--text-secondary); }
+  .prow a { font-size: 10px; text-decoration: underline; text-decoration-color: rgba(77,231,231,.35); text-underline-offset: 2px; }
+  .prow a:hover { text-decoration-color: var(--data-link); }
   .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-  .btn { height: 50px; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .04em; cursor: pointer; border: none; text-decoration: none; }
-  .btn.primary { background: var(--text); color: var(--bg); }
-  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--dim); font-weight: 400; }
-  .foot { margin-top: 34px; font-size: 10px; color: var(--faint); line-height: 1.8; }
-  details { margin-top: 18px; border: 1px dashed var(--border); border-radius: 8px; padding: 12px 14px; }
-  summary { font-size: 11px; color: var(--dim); cursor: pointer; letter-spacing: .06em; }
-  details p { font-size: 10px; color: var(--faint); line-height: 1.8; }
-  .err { color: var(--red); }
-  .rhead { display: flex; justify-content: space-between; align-items: center; margin: 36px 0 4px 0; }
-  #rescan { height: 34px; padding: 0 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-family: inherit; font-size: 11px; cursor: pointer; letter-spacing: .05em; }
+  .btn { min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 4px; font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: .05em; cursor: pointer; border: 1px solid var(--border-default); text-decoration: none; text-align: center; padding: 10px 12px; transition: border-color .14s, color .14s, filter .14s; }
+  .btn:hover { text-decoration: none; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--sig, var(--state-pve)); border-color: var(--sig, var(--state-pve)); color: #07110a; font-weight: 700; }
+  .btn.primary:hover { filter: brightness(1.07); }
+  .btn.ghost { background: var(--surface-raised); color: var(--text-secondary); font-weight: 500; }
+  .btn.ghost:hover { border-color: var(--sig, var(--border-strong)); color: var(--text-primary); }
+  .foot { margin-top: 34px; padding-top: 14px; border-top: 1px solid var(--border-default); font-size: 10px; color: var(--text-muted); line-height: 1.8; }
+  details { margin-top: 18px; border: 1px solid var(--border-default); border-radius: 4px; padding: 12px 14px; background: var(--surface-subtle); }
+  summary { font-size: 11px; color: var(--text-secondary); cursor: pointer; letter-spacing: .06em; }
+  summary:hover { color: var(--text-primary); }
+  details p { font-size: 10px; color: var(--text-secondary); line-height: 1.8; }
+  /* ---- radar ---- */
+  .rhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 36px 0 4px 0; }
+  .rhead .secttl { flex: 1; }
+  #rescan { position: relative; height: 36px; padding: 0 14px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .08em; white-space: nowrap; transition: border-color .14s, color .14s; }
+  #rescan::after { content: ''; position: absolute; inset: -5px 0; }
+  #rescan:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
   #rescan:disabled { opacity: .4; cursor: default; }
-  .rchips { display: flex; gap: 8px; margin: 12px 0; }
-  .rchip { height: 28px; padding: 0 12px; display: flex; align-items: center; border-radius: 4px; font-size: 10px; cursor: pointer; background: var(--surface); border: 1px solid var(--border); color: var(--dim); letter-spacing: .06em; }
-  .rchip.on { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
-  #rstatus { font-size: 11px; color: var(--dim); margin: 8px 0 12px 0; min-height: 16px; }
+  .rquip { font-size: 11px; color: var(--text-muted); line-height: 1.7; margin-bottom: 4px; }
+  .rchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .rchip { position: relative; height: 32px; padding: 0 12px; display: flex; align-items: center; border-radius: 4px; font-size: 10px; cursor: pointer; background: var(--surface-raised); border: 1px solid var(--border-default); color: var(--text-secondary); letter-spacing: .08em; transition: border-color .14s, color .14s; }
+  .rchip::before { content: ''; position: absolute; inset: -7px -2px; }
+  .rchip:hover { border-color: var(--border-strong); }
+  .rchip.on { border-color: var(--state-pve); color: var(--state-pve); font-weight: 600; }
+  .rchip.on::after { content: ''; position: absolute; left: 9px; right: 9px; bottom: 4px; height: 2px; background: var(--state-pve); }
+  #rstatus { font-size: 11px; color: var(--text-secondary); margin: 8px 0 12px 0; min-height: 16px; }
   #rfeed { display: flex; flex-direction: column; gap: 10px; }
-  .rcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 9px; }
-  .rcard:hover { background: #171a21; }
+  .rcard { background: var(--surface); border: 1px solid var(--border-default); border-left: 2px solid var(--sig, var(--state-neutral)); border-radius: 4px; padding: 13px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 9px; transition: border-color .14s, background-color .14s; }
+  .rcard:hover { background: var(--surface-raised); border-color: var(--border-strong); border-left-color: var(--sig, var(--state-neutral)); }
   .rrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .rmeta { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .rsym { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; }
-  .rchain { font-size: 9px; color: var(--dim); border: 1px solid var(--border); border-radius: 3px; padding: 2px 5px; }
-  .rpill { font-size: 9px; font-weight: 600; border-radius: 3px; padding: 4px 7px; letter-spacing: .05em; color: var(--bg); flex-shrink: 0; }
-  .rscore { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; }
-  .rline { font-size: 11px; color: var(--dim); }
+  .rsym { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+  .rchain { font-size: 9px; color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: 3px; padding: 3px 6px; letter-spacing: .06em; flex-shrink: 0; }
+  .rpill { font-size: 9px; font-weight: 700; border: 1px solid var(--sig, var(--state-neutral)); border-radius: 3px; padding: 4px 7px; letter-spacing: .06em; color: var(--sig, var(--state-neutral)); flex-shrink: 0; white-space: nowrap; }
+  .rscore { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--sig, var(--state-neutral)); }
+  .rline { font-size: 11px; }
+  .rline.sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
   .rbot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .ministair { width: 104px; flex-shrink: 0; }
-  .badge { font-size: 9px; color: var(--amber); border: 1px dashed #3d2c10; border-radius: 3px; padding: 2px 6px; margin-left: 6px; }
-  #receipts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .badge { font-size: 9px; color: var(--state-pvp); border: 1px solid var(--border-strong); border-radius: 3px; padding: 2px 6px; margin-left: 6px; flex-shrink: 0; }
+  #receipts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
   #receipts:not(:empty) { margin: 6px 0 10px 0; }
-  .chip { flex-shrink: 0; display: flex; align-items: center; gap: 6px; font-size: 10px; border: 1px dashed var(--border); border-radius: 4px; padding: 7px 10px; cursor: pointer; color: var(--text); background: var(--surface2); }
+  .chip { flex-shrink: 0; display: flex; align-items: center; gap: 6px; font-size: 10px; border: 1px solid var(--border-default); border-radius: 4px; padding: 8px 10px; cursor: pointer; color: var(--text-primary); background: var(--surface-subtle); transition: border-color .14s; }
+  .chip:hover { border-color: var(--border-strong); }
   .chip b { font-weight: 600; }
-  .chip span { color: var(--faint); }
-  .prow { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; color: var(--dim); }
-  .prow a { font-size: 10px; }
-  .cabtn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; background: rgba(0,0,0,.25); border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .04em; }
-  .cabtn:hover { color: var(--text); border-color: #3a4150; }
-  .cabtn.ok { color: var(--green); border-color: #1c3a2a; }
-  .cabtn.warn { color: var(--amber); border-color: #3d2c10; }
-  @media (max-width: 480px) { .vtitle { font-size: 31px; } .hero h1 { font-size: 28px; } }
+  .chip span { color: var(--text-muted); }
+  .cabtn { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; background: var(--surface-subtle); border: 1px solid var(--border-default); border-radius: 3px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .04em; transition: border-color .14s, color .14s; }
+  .cabtn::after { content: ''; position: absolute; inset: -6px 0; }
+  .cabtn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .cabtn.ok { color: var(--state-pve); border-color: var(--state-pve); }
+  .cabtn.warn { color: var(--state-pvp); border-color: var(--state-pvp); }
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 29px; }
+    .vtitle { font-size: 26px; }
+    .rsym { max-width: 110px; }
+    .ministair { width: 92px; }
+    .bar label { width: 100px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="logo">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 18h5v-4h5v-4h5V6h3" stroke="#3ce88e" stroke-width="2.2" stroke-linecap="square"/></svg>
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 18h5v-4h5v-4h5V6h3" stroke="#83ff70" stroke-width="2.2" stroke-linecap="square"/></svg>
       <b>EXITLIQ.WTF</b>
     </div>
-    <div class="tagchip">BETA · FREE</div>
+    <div class="sysbadge"><i></i>SYSTEM ONLINE · BETA</div>
   </header>
 
   <div class="hero">
     <h1>am i exit liq?</h1>
-    <p>paste a CA. we replay the tape and count the buyer layers —<br>so you know which one you'd be, before you click buy.</p>
+    <p>paste a CA. we replay every new high, wait four hours, and check whether the floor held.</p>
   </div>
 
   <div class="inrow">
-    <input id="ca" placeholder="paste token address (SOL / BSC / BASE / RH / ETH)" autocomplete="off" spellcheck="false">
+    <input id="ca" placeholder="paste token address" autocomplete="off" spellcheck="false">
     <button id="go">CHECK</button>
   </div>
-  <div class="hint">reads public trade data only. nothing signed, nothing stored, not advice.</div>
+  <div class="hint">public trade data only. nothing signed, nothing stored, not advice.</div>
 
   <div id="status"></div>
-  <div id="card"></div>
+  <div id="card" class="marks"></div>
 
   <div class="rhead">
     <div class="secttl" style="margin: 0;">THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS</div>
-    <button id="rescan">RESCAN</button>
+    <button id="rescan">SCAN AGAIN</button>
   </div>
-  <div style="font-size: 10px; color: var(--faint); line-height: 1.7; margin-bottom: 4px;">the radar scans trending pools on SOL / BSC / BASE / ROBINHOOD every few minutes and replays each tape for structure. majors, stables and unreadable assets are skipped — a radar that pings everything pings nothing. tap a card for the full verdict.</div>
+  <div class="rquip">we scan the trenches so you don't have to. evidence first, cope later.</div>
   <div id="receipts"></div>
   <div class="rchips" id="rchips">
     <div class="rchip on" data-c="ALL">ALL</div>
@@ -168,16 +230,20 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const GT_NET = { solana: 'solana', bsc: 'bsc', base: 'base', ethereum: 'eth', arbitrum: 'arbitrum', polygonpos: 'polygon_pos', polygon: 'polygon_pos', avalanche: 'avax' };
+// shared verdict-state mapping: tone → CSS token (DOM/SVG) + hex (canvas receipt)
+const TONE = { pve: 'var(--state-pve)', exit: 'var(--state-exit)', pvp: 'var(--state-pvp)', risk: 'var(--state-risk)', neutral: 'var(--state-neutral)' };
+const TONE_HEX = { pve: '#83ff70', exit: '#ff4764', pvp: '#f6c94c', risk: '#ff5a66', neutral: '#7d8580' };
 const SIGNALS = {
-  PVE_MOMENT:   { title: 'STRUCTURE HOLDS', sub: 'PVE MOMENT', color: 'var(--green)', border: '#1c3a2a', bg: '#0d1f16' },
-  PVE_BUILDING: { title: 'STRUCTURE FORMING', sub: 'PVE BUILDING', color: 'var(--lime)', border: '#2a3316', bg: '#141a0c' },
-  NEUTRAL:      { title: 'NO EDGE EITHER WAY', sub: 'NEUTRAL CHOP', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
-  PVP_CHURN:    { title: 'PURE PVP CASINO', sub: 'MUSICAL CHAIRS', color: 'var(--amber)', border: '#3d2c10', bg: '#191207' },
-  STRUCT_RISK:  { title: 'STRUCTURE IS CRACKING', sub: 'STRUCTURE RISK', color: 'var(--red)', border: '#4a1a22', bg: '#16090c' },
-  EXIT_LIQ:     { title: "YOU'D BE EXIT LIQ", sub: 'EXIT LIQUIDITY RISK', color: 'var(--red)', border: '#4a1a22', bg: '#16090c' },
-  TOO_EARLY:    { title: 'NO STRUCTURE YET', sub: 'TOO EARLY / PURE ROULETTE', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
-  OOS:          { title: 'NOT A TRENCH ASSET', sub: 'OUT OF SCOPE', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
+  PVE_MOMENT:   { label: 'PVE MOMENT',     title: 'THE FLOOR HELD. FOR NOW.', tone: 'pve' },
+  PVE_BUILDING: { label: 'PVE BUILDING',   title: 'NEW FLOOR. NOT LOAD-BEARING YET.', tone: 'pve' },
+  NEUTRAL:      { label: 'NO EDGE',        title: 'NO NEW FLOOR. NO NEW EVIDENCE.', tone: 'neutral' },
+  PVP_CHURN:    { label: 'PVP',            title: 'NO NEW MONEY. JUST FASTER HANDS.', tone: 'pvp' },
+  STRUCT_RISK:  { label: 'STRUCTURE RISK', title: "NOBODY'S BUILDING. PLENTY ARE WAITING UPSTAIRS.", tone: 'risk' },
+  EXIT_LIQ:     { label: 'EXIT LIQ',       title: "YOU FOUND THE BUYERS. IT'S YOU.", tone: 'exit' },
+  TOO_EARLY:    { label: 'TOO EARLY',      title: 'NO STRUCTURE YET.', tone: 'neutral' },
+  OOS:          { label: 'OUT OF SCOPE',   title: 'NOT A TRENCH ASSET.', tone: 'neutral' },
 };
+for (const k in SIGNALS) SIGNALS[k].color = TONE[SIGNALS[k].tone];
 
 // ---- asset-domain gate: this tool reads buyer layers on DEXes, nothing else ----
 const STABLES = new Set(['USDT','USDC','DAI','FDUSD','USDE','TUSD','USD1','PYUSD','BUSD','USDS']);
@@ -365,36 +431,51 @@ function wireCA(root) {
   [...root.querySelectorAll('.cabtn')].forEach(b => b.onclick = (e) => { e.stopPropagation(); copyCA(b.dataset.ca, b); });
 }
 
-function stairSVG(levels, pending, color) {
+// structural floor chart. mini=true scales strokes up so the 104px radar
+// render keeps a ~2px main line (same 480-unit viewBox both places).
+function stairSVG(levels, pending, color, mini) {
   const evs = levels.slice(-5);
   const W = 480, H = 130, base = H - 18;
+  const SW = mini ? 9 : 3;                 // main line
+  const BW = mini ? 4 : 1;                 // baseline
+  const MK = mini ? 16 : 8;                // held/pending marker square
+  const XA = mini ? 11 : 6;                // failed × arm
+  const XW = mini ? 8 : 2;                 // failed × stroke
+  const DASH = mini ? '16 12' : '6 6';
+  const baseline = '<line x1="8" y1="' + base + '" x2="' + (W - 8) + '" y2="' + base + '" stroke="var(--border-default)" stroke-width="' + BW + '"/>';
   const n = evs.length + (pending ? 1 : 0);
-  if (!n) return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '"><line x1="8" y1="' + base + '" x2="' + (W - 8) + '" y2="' + base + '" stroke="#1f232c"/><text x="' + W / 2 + '" y="' + (base - 26) + '" fill="#565b68" font-size="11" text-anchor="middle" font-family="IBM Plex Mono,monospace">no levels formed in the window</text></svg>';
+  if (!n) {
+    const empty = mini
+      ? '<path d="M30 ' + (base - 30) + ' H' + (W - 30) + '" stroke="var(--border-strong)" stroke-width="' + BW + '" stroke-dasharray="8 20"/>'
+      : '<text x="' + W / 2 + '" y="' + (base - 26) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle" font-family="IBM Plex Mono,monospace">no levels formed in the window</text>';
+    return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '">' + baseline + empty + '</svg>';
+  }
   const stepW = (W - 40) / (n + 1);
   const rise = Math.min(26, (base - 26) / n);
-  let x = 12, y = base, path = 'M' + x + ',' + y, marks = '';
+  let x = 12, y = base, path = 'M' + x + ',' + y, marks = '', guides = '';
   evs.forEach((l) => {
     x += stepW; path += ' H' + x.toFixed(0);
     if (l.held) {
       y -= rise; path += ' V' + y.toFixed(0);
-      marks += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="4" fill="' + color + '"/>';
+      if (!mini) guides += '<line x1="' + x.toFixed(0) + '" y1="' + y.toFixed(0) + '" x2="' + (W - 8) + '" y2="' + y.toFixed(0) + '" stroke="var(--border-default)" stroke-dasharray="2 5"/>';
+      marks += '<rect x="' + (x - MK / 2).toFixed(1) + '" y="' + (y - MK / 2).toFixed(1) + '" width="' + MK + '" height="' + MK + '" fill="' + color + '"/>';
     } else if (l.failed) {
       const drop = Math.min(rise * 1.4, base - y - 4);
       y += drop; path += ' V' + y.toFixed(0);
-      marks += '<path d="M' + (x - 5) + ' ' + (y - drop - 8) + 'l10 10M' + (x + 5) + ' ' + (y - drop - 8) + 'l-10 10" stroke="var(--red)" stroke-width="1.8"/>';
+      marks += '<path d="M' + (x - XA) + ' ' + (y - drop - XA) + 'l' + (2 * XA) + ' ' + (2 * XA) + 'M' + (x + XA) + ' ' + (y - drop - XA) + 'l-' + (2 * XA) + ' ' + (2 * XA) + '" stroke="var(--state-exit)" stroke-width="' + XW + '"/>';
     } else {
-      marks += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="4" fill="none" stroke="#565b68" stroke-width="1.6"/>';
+      marks += '<rect x="' + (x - MK / 2).toFixed(1) + '" y="' + (y - MK / 2).toFixed(1) + '" width="' + MK + '" height="' + MK + '" fill="none" stroke="var(--text-muted)" stroke-width="' + (mini ? 4 : 1.5) + '"/>';
     }
   });
   let pendMark = '';
   if (pending) {
     x += stepW;
-    pendMark = '<path d="M' + (x - stepW).toFixed(0) + ' ' + (y - rise).toFixed(0) + ' H' + x.toFixed(0) + '" stroke="' + color + '" stroke-width="2.4" stroke-dasharray="5 5"/>' +
-      '<circle cx="' + (x - stepW).toFixed(0) + '" cy="' + (y - rise).toFixed(0) + '" r="4" fill="#0a0b0d" stroke="' + color + '" stroke-width="2"/>';
+    pendMark = '<path d="M' + (x - stepW).toFixed(0) + ' ' + (y - rise).toFixed(0) + ' H' + x.toFixed(0) + '" stroke="' + color + '" stroke-width="' + SW + '" stroke-dasharray="' + DASH + '"/>' +
+      '<rect x="' + ((x - stepW) - MK / 2).toFixed(1) + '" y="' + ((y - rise) - MK / 2).toFixed(1) + '" width="' + MK + '" height="' + MK + '" fill="var(--bg)" stroke="' + color + '" stroke-width="' + (mini ? 4 : 2) + '"/>';
     path += ' V' + (y - rise).toFixed(0);
   }
-  return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '"><line x1="8" y1="' + base + '" x2="' + (W - 8) + '" y2="' + base + '" stroke="#1f232c"/>' +
-    '<path d="' + path + '" stroke="' + color + '" stroke-width="2.4" fill="none" stroke-linecap="square"/>' + pendMark + marks + '</svg>';
+  return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '">' + baseline + guides +
+    '<path class="mainpath" d="' + path + '" stroke="' + color + '" stroke-width="' + SW + '" fill="none" stroke-linecap="square" stroke-linejoin="miter"/>' + pendMark + marks + '</svg>';
 }
 
 let last = null;
@@ -403,20 +484,21 @@ function renderOOS(pair, reason) {
   const S = SIGNALS.OOS;
   const sym = pair.baseToken.symbol.replace(/^\$*/, '');
   const card = $('card');
+  card.style.setProperty('--sig', S.color);
   card.style.display = 'block';
-  card.style.borderColor = S.border;
-  card.style.background = S.bg;
+  card.classList.remove('reveal'); void card.offsetWidth; card.classList.add('reveal');
   const copy = reason === 'stable'
     ? '$' + sym + ' is a stablecoin. if you\'re exit liq here, we have bigger problems than this tool can solve.'
     : '$' + sym + ' isn\'t priced by buyer layers on a DEX — it\'s priced by CEXs, ETFs and macro flow this tool can\'t see. The on-chain pools are its shadow, not its market. If it dumps on you, that\'s not exit liquidity. That\'s just called a market.';
   card.innerHTML =
-    '<div class="vhead"><span style="color:var(--dim)">VERDICT · ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC</span><span style="color:var(--faint)">DOMAIN CHECK</span></div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">' +
+    '<div class="vhead"><span>STRUCTURAL INSPECTION REPORT</span><span class="vid">DOMAIN CHECK · ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;">' +
       '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
-      '<span style="font-size:11px;color:var(--dim)">mcap ' + fmtUsd(pair.marketCap || pair.fdv || 0) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
-    '<div class="vtitle" style="color:' + S.color + '">' + S.title + '</div>' +
+      '<span style="font-size:11px;color:var(--text-secondary)">mcap ' + fmtUsd(pair.marketCap || pair.fdv || 0) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
+    '<div class="vbadge">' + S.label + '</div>' +
+    '<div class="vtitle">' + S.title + '</div>' +
     '<div class="vwhy">' + copy + '</div>' +
-    '<div style="font-size:10px;color:var(--faint);line-height:1.7;">exitliq.wtf only reads assets whose price is made of discrete buyer layers on-chain: micro/mid-cap memes in their distribution phase. Majors and stables are out of scope — a tool that answers everything can be trusted on nothing.</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.7;">exitliq.wtf only reads assets whose price is made of discrete buyer layers on-chain: micro/mid-cap memes in their distribution phase. Majors and stables are out of scope — a tool that answers everything can be trusted on nothing.</div>' +
     '<div style="margin-top:12px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
     '<div class="actions"><a class="btn ghost" id="again">CHECK SOMETHING FROM THE TRENCHES</a></div>';
   wireCA(card);
@@ -430,45 +512,46 @@ function render(pair, a) {
   const rid = '#' + Math.abs([...(pair.baseToken.address + ts)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7)).toString().slice(0, 5);
   last = { pair, a, sym, ts, rid };
   const card = $('card');
+  card.style.setProperty('--sig', S.color);
   card.style.display = 'block';
-  card.style.borderColor = S.border;
-  card.style.background = S.bg;
-  const barColor = S.color;
+  card.classList.remove('reveal'); void card.offsetWidth; card.classList.add('reveal');
   const bars = [
     ['LEVELS ×.35', a.parts.sLevels], ['BUY PRESSURE ×.25', a.parts.sBuyers],
     ['STREAK ×.15', a.parts.sStreak], ['VOLUME ×.10', a.parts.volTrend], ['RETENTION ×.15', a.parts.sRet],
-  ].map(([lb, v]) => '<div class="bar"><label>' + lb + '</label><div class="tr"><div class="fl" style="width:' + Math.round(v) + '%;background:' + barColor + '"></div></div><em>' + Math.round(v) + '</em></div>').join('');
+  ].map(([lb, v]) => '<div class="bar"><label>' + lb + '</label><div class="tr"><div class="fl" style="width:' + Math.round(v) + '%"></div></div><em>' + Math.round(v) + '</em></div>').join('');
 
   card.innerHTML =
-    '<div class="vhead"><span style="color:' + S.color + '">VERDICT · ' + ts + '</span><span style="color:var(--faint)">' + rid + '</span></div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">' +
+    '<div class="vhead"><span>STRUCTURAL INSPECTION REPORT</span><span class="vid">' + ts + ' · ' + rid + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;">' +
       '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
-      '<span style="font-size:11px;color:var(--dim)">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(a.mcap) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
-    '<div style="margin-bottom:12px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
-    '<div class="vtitle" style="color:' + S.color + '">' + S.title + '</div>' +
+      '<span style="font-size:11px;color:var(--text-secondary)">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(a.mcap) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
+    '<div style="margin-bottom:14px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
+    '<div class="vbadge">' + S.label + '</div>' +
+    '<div class="vtitle">' + S.title + '</div>' +
     '<div class="vwhy">' + a.why + '</div>' +
     '<div class="tiles">' +
-      '<div class="tile"><b style="color:' + S.color + '">' + a.score + '</b><span>STRUCTURE</span></div>' +
-      '<div class="tile"><b style="color:' + S.color + '">L' + a.layer + '</b><span>' + (a.layer === 1 ? 'NO FLOOR BELOW YOU' : 'YOUR LAYER · 41D') + '</span></div>' +
-      '<div class="tile"><b style="color:' + S.color + '">' + a.sells24 + '%</b><span>SELLS 24H</span></div></div>' +
-    '<div class="secttl">THE STAIRCASE — recent levels (solid = held · × = round-trip · dashed = pending)</div>' +
+      '<div class="tile"><b>' + a.score + '</b><span>STRUCTURE</span></div>' +
+      '<div class="tile"><b>L' + a.layer + '</b><span>' + (a.layer === 1 ? 'NO FLOOR BELOW YOU' : 'YOUR LAYER · 41D') + '</span></div>' +
+      '<div class="tile"><b>' + a.sells24 + '%</b><span>SELLS 24H</span></div></div>' +
+    '<div class="secttl">THE STAIRCASE — RECENT LEVELS</div>' +
+    '<div class="legend">solid held. dashed pending. × means somebody paid tuition.</div>' +
     '<div class="stairbox">' + stairSVG(a.levels, a.pending, S.color) + '</div>' +
-    '<div class="secttl">WHY ' + a.score + '</div>' + bars +
-    '<div class="secttl">PROOF — CHECK OUR WORK</div>' +
+    '<div class="secttl">WHY ' + a.score + ' — RECEIPTS, NOT VIBES</div>' + bars +
+    '<div class="secttl">PROOF — DON\'T TRUST US. CHECK.</div>' +
     '<div style="display:flex;flex-direction:column;gap:7px;">' +
       '<div class="prow"><span>pool read</span><a href="https://www.geckoterminal.com/' + (GT_NET[pair.chainId] || pair.chainId) + '/pools/' + pair.pairAddress + '" target="_blank" rel="noopener">' + shortCA(pair.pairAddress) + ' ↗</a></div>' +
       '<div class="prow"><span>tape</span><span>' + a.nCandles + ' × 1h candles (~' + Math.round(a.nCandles / 24) + 'd window)</span></div>' +
       (a.levels.slice(-4).map(l => {
         const pct = Math.round(l.ratio * 100);
-        const tag = l.held ? '<span style="color:var(--green)">HELD ' + pct + '%</span>' : l.failed ? '<span style="color:var(--red)">ROUND-TRIP ' + pct + '%</span>' : '<span style="color:var(--dim)">DRIFT ' + pct + '%</span>';
+        const tag = l.held ? '<span style="color:var(--state-pve)">HELD ' + pct + '%</span>' : l.failed ? '<span style="color:var(--state-exit)">ROUND-TRIP ' + pct + '%</span>' : '<span style="color:var(--text-secondary)">DRIFT ' + pct + '%</span>';
         return '<div class="prow"><span>' + fmtUTC(l.t) + ' broke ' + fmtPrice(l.price) + '</span><span>+4h → ' + tag + '</span></div>';
       }).join('') || '<div class="prow"><span>breakout events in window</span><span>none</span></div>') +
       '<div class="prow"><span>live pair data</span><a href="https://dexscreener.com/' + pair.chainId + '/' + pair.pairAddress + '" target="_blank" rel="noopener">dexscreener ↗</a></div>' +
       '<div class="prow"><span>verdict ledger (wrong ones kept)</span><a href="https://github.com/scarlettzhangxh/exitliq/blob/main/verdicts.jsonl" target="_blank" rel="noopener">public git log ↗</a></div>' +
     '</div>' +
     '<div class="actions">' +
-      '<a class="btn primary" id="shareX">SHARE VERDICT ON 𝕏</a>' +
-      '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT PNG</a>' +
+      '<a class="btn primary" id="shareX">SHARE VERDICT ON X</a>' +
+      '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT</a>' +
       '<a class="btn ghost" id="chBtn">THINK IT\'S WRONG? POST THE COUNTER-CASE</a>' +
       '<a class="btn ghost" id="again">CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT</a></div>';
 
@@ -496,39 +579,38 @@ function downloadReceipt() {
   const S = SIGNALS[a.sig];
   const cv = document.createElement('canvas'); cv.width = 640; cv.height = 760;
   const g = cv.getContext('2d');
-  const col = { green: '#3ce88e', lime: '#b9e04a', amber: '#ffb02e', red: '#ff4d5e', gray: '#aab0bf' };
-  const main = a.sig === 'EXIT_LIQ' || a.sig === 'STRUCT_RISK' ? col.red : a.sig === 'PVE_MOMENT' ? col.green : a.sig === 'PVE_BUILDING' ? col.lime : a.sig === 'PVP_CHURN' ? col.amber : col.gray;
-  g.fillStyle = '#0a0b0d'; g.fillRect(0, 0, 640, 760);
-  g.strokeStyle = '#262b36'; g.lineWidth = 2; g.strokeRect(24, 24, 592, 712);
+  const main = TONE_HEX[S.tone] || TONE_HEX.neutral;
+  g.fillStyle = '#070908'; g.fillRect(0, 0, 640, 760);
+  g.strokeStyle = '#282e2a'; g.lineWidth = 2; g.strokeRect(24, 24, 592, 712);
   const mono = (s) => s + 'px "IBM Plex Mono", monospace';
   const grot = (s, w) => (w || 700) + ' ' + s + 'px "Space Grotesk", sans-serif';
   // header
   g.strokeStyle = main; g.lineWidth = 3; g.beginPath();
   g.moveTo(56, 84); g.lineTo(76, 84); g.lineTo(76, 72); g.lineTo(96, 72); g.lineTo(96, 60); g.lineTo(116, 60); g.stroke();
-  g.fillStyle = '#e8eaf0'; g.font = grot(22); g.fillText('EXIT LIQ RECEIPT', 132, 84);
-  g.fillStyle = '#8b90a0'; g.font = mono(15); g.textAlign = 'right'; g.fillText(rid, 584, 82); g.textAlign = 'left';
-  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 112); g.lineTo(584, 112); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#f2f0e8'; g.font = grot(22); g.fillText('EXIT LIQ RECEIPT', 132, 84);
+  g.fillStyle = '#929890'; g.font = mono(15); g.textAlign = 'right'; g.fillText(rid, 584, 82); g.textAlign = 'left';
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 112); g.lineTo(584, 112); g.stroke(); g.setLineDash([]);
   // token + verdict
-  g.fillStyle = '#e8eaf0'; g.font = grot(40); g.fillText('$' + sym, 56, 178);
-  g.fillStyle = '#8b90a0'; g.font = mono(15); g.textAlign = 'right'; g.fillText('checked @ ' + fmtPrice(a.price), 584, 174); g.textAlign = 'left';
+  g.fillStyle = '#f2f0e8'; g.font = grot(40); g.fillText('$' + sym, 56, 178);
+  g.fillStyle = '#929890'; g.font = mono(15); g.textAlign = 'right'; g.fillText('checked @ ' + fmtPrice(a.price), 584, 174); g.textAlign = 'left';
   g.fillStyle = main; g.font = grot(44);
   wrapText(g, S.title, 56, 250, 528, 50);
   // rows
   g.font = mono(16);
-  const rows = [['verdict', S.sub], ['structure score', a.score + ' / 100'], ['your buyer layer', 'L' + a.layer], ['sells 24h', a.sells24 + '%'], ['timestamp', ts]];
+  const rows = [['verdict', S.label], ['structure score', a.score + ' / 100'], ['your buyer layer', 'L' + a.layer], ['sells 24h', a.sells24 + '%'], ['timestamp', ts]];
   let y = 356;
   rows.forEach(([k, v]) => {
-    g.fillStyle = '#8b90a0'; g.fillText(k, 56, y);
-    g.fillStyle = k === 'verdict' ? main : '#e8eaf0'; g.textAlign = 'right'; g.fillText(String(v), 584, y); g.textAlign = 'left';
+    g.fillStyle = '#929890'; g.fillText(k, 56, y);
+    g.fillStyle = k === 'verdict' ? main : '#f2f0e8'; g.textAlign = 'right'; g.fillText(String(v), 584, y); g.textAlign = 'left';
     y += 40;
   });
   // note box
-  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.strokeRect(56, y, 528, 110); g.setLineDash([]);
-  g.fillStyle = '#565b68'; g.font = mono(13);
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.strokeRect(56, y, 528, 110); g.setLineDash([]);
+  g.fillStyle = '#626963'; g.font = mono(13);
   wrapText(g, 'verdicts are timestamped when issued. we keep the wrong ones too — that is the point.', 74, y + 34, 494, 22);
   // footer
-  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 696); g.lineTo(584, 696); g.stroke(); g.setLineDash([]);
-  g.fillStyle = '#8b90a0'; g.font = mono(14); g.fillText('who buys after you?', 56, 726);
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 696); g.lineTo(584, 696); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#929890'; g.font = mono(14); g.fillText('who buys after you?', 56, 726);
   g.fillStyle = main; g.textAlign = 'right'; g.fillText('exitliq.wtf', 584, 726); g.textAlign = 'left';
   const aEl = document.createElement('a');
   aEl.download = 'layers-receipt-' + sym + '-' + rid.slice(1) + '.png';
@@ -549,7 +631,7 @@ async function check(addr) {
   if (!addr) return;
   $('card').style.display = 'none';
   try {
-    setStatus('reading the tape…');
+    setStatus('REPLAYING THE TAPE');
     const pair = await fetchPair(addr);
     if (!pair) { setStatus('no pair found — either too fresh, wrong address, or already dead. all three are answers.', true); return; }
     const reason = gateReason({
@@ -559,10 +641,10 @@ async function check(addr) {
       ageDays: pair.pairCreatedAt ? (Date.now() - pair.pairCreatedAt) / 864e5 : 0,
     });
     if (reason) { clearStatus(); renderOOS(pair, reason); history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr)); return; }
-    setStatus('counting buyer layers on $' + pair.baseToken.symbol + '…');
+    setStatus('TESTING THE FLOORS · $' + pair.baseToken.symbol);
     let candles = [];
     try { candles = await fetchCandles(pair.chainId, pair.pairAddress); } catch (e) { candles = []; }
-    setStatus('asking who buys after you…');
+    setStatus('BUILDING THE VERDICT');
     const a = analyze(pair, candles);
     clearStatus();
     render(pair, a);
@@ -627,15 +709,15 @@ function insertRadarCard(t, a, prevSig) {
   el.dataset.chain = t.chain;
   el.dataset.rank = RANK[a.sig] != null ? RANK[a.sig] : 9;
   el.dataset.score = a.score;
-  el.style.borderColor = S.border;
-  const changed = prevSig && prevSig !== a.sig ? '<span class="badge">Δ was ' + prevSig.replace('PVE_', '').replace('_', ' ') + '</span>' : '';
+  el.style.setProperty('--sig', S.color);
+  const changed = prevSig && prevSig !== a.sig ? '<span class="badge">Δ was ' + (SIGNALS[prevSig] ? SIGNALS[prevSig].label : prevSig.replace('PVE_', '').replace('_', ' ')) + '</span>' : '';
   el.innerHTML =
     '<div class="rrow"><div class="rmeta"><span class="rsym">$' + t.sym + '</span><span class="rchain">' + t.chain.toUpperCase() + '</span>' + changed + '</div>' +
-    '<div style="display:flex;align-items:center;gap:8px;"><span class="rpill" style="background:' + S.color + '">' + S.sub.split(' / ')[0] + '</span><span class="rscore" style="color:' + S.color + '">' + a.score + '</span></div></div>' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;"><span class="rpill">' + S.label + '</span><span class="rscore">' + a.score + '</span></div></div>' +
     '<div class="rbot"><div style="min-width:0;"><div class="rline">' + radarLine(a) + '</div>' +
-    '<div class="rline" style="color:var(--faint);margin-top:3px;">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(t.mcap) + ' · vol ' + fmtUsd(t.vol24) + '</div>' +
+    '<div class="rline sub">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(t.mcap) + ' · vol ' + fmtUsd(t.vol24) + '</div>' +
     '<div style="margin-top:8px;">' + caBtnHTML(t.addr) + '</div></div>' +
-    '<div class="ministair">' + stairSVG(a.levels, a.pending, S.color) + '</div></div>';
+    '<div class="ministair">' + stairSVG(a.levels, a.pending, S.color, true) + '</div></div>';
   el.onclick = () => { $('ca').value = t.addr; check(t.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   wireCA(el);
   const feed = $('rfeed');
@@ -648,7 +730,7 @@ function renderReceipts(rs) {
   if (!rs.length) { $('receipts').innerHTML = ''; return; }
   rs.sort((x, y) => y.fwd - x.fwd);
   $('receipts').innerHTML = rs.slice(0, 8).map(r =>
-    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--green)' : 'var(--red)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer confirmed ' + r.age + ' ago</span></div>').join('');
+    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer confirmed ' + r.age + ' ago</span></div>').join('');
   [...$('receipts').children].forEach(c => c.onclick = () => { $('ca').value = c.dataset.addr; check(c.dataset.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
