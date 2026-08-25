@@ -106,9 +106,9 @@
   /* ---- radar ---- */
   .rhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 36px 0 4px 0; }
   .rhead .secttl { flex: 1; }
-  #rescan { position: relative; height: 36px; padding: 0 14px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .08em; white-space: nowrap; transition: border-color .14s, color .14s; }
-  #rescan::after { content: ''; position: absolute; inset: -5px 0; }
-  #rescan:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
+  #rescan, #mkRefresh { position: relative; height: 36px; padding: 0 14px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .08em; white-space: nowrap; transition: border-color .14s, color .14s; }
+  #rescan::after, #mkRefresh::after { content: ''; position: absolute; inset: -5px 0; }
+  #rescan:hover:not(:disabled), #mkRefresh:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
   #rescan:disabled { opacity: .4; cursor: default; }
   .rquip { font-size: 11px; color: var(--text-muted); line-height: 1.7; margin-bottom: 4px; }
   .rchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
@@ -178,6 +178,15 @@
 
   <div id="status"></div>
   <div id="card" class="marks"></div>
+
+  <div id="marksSec" style="display: none;">
+    <div class="rhead">
+      <div class="secttl" style="margin: 0;">YOUR MARKS — THE STRATEGY ON TRIAL</div>
+      <button id="mkRefresh">MARK TO MARKET</button>
+    </div>
+    <div class="rquip">mark a verdict. come back later. judge us. marks live only in your browser — we can't touch them, can't delete the ones that embarrass us. graded live against the verdict's direction; 7 days is the honest horizon.</div>
+    <div id="marksList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+  </div>
 
   <div class="rhead">
     <div class="secttl" style="margin: 0;">THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS</div>
@@ -551,6 +560,7 @@ function render(pair, a) {
     '</div>' +
     '<div class="actions">' +
       '<a class="btn primary" id="shareX">SHARE VERDICT ON X</a>' +
+      '<a class="btn ghost" id="mkBtn">MARK IT — VERIFY ME LATER</a>' +
       '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT</a>' +
       '<a class="btn ghost" id="chBtn">THINK IT\'S WRONG? POST THE COUNTER-CASE</a>' +
       '<a class="btn ghost" id="again">CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT</a></div>';
@@ -558,6 +568,14 @@ function render(pair, a) {
   wireCA(card);
   $('shareX').onclick = shareX;
   $('dlR').onclick = downloadReceipt;
+  $('mkBtn').onclick = () => {
+    const marks = loadMarks();
+    marks.push({ addr: pair.baseToken.address, sym, chain: pair.chainId, sig: a.sig, score: a.score, price: a.price, at: Date.now() });
+    saveMarks(marks);
+    $('mkBtn').textContent = 'MARKED — COME BACK AND JUDGE US';
+    setTimeout(() => { const b = $('mkBtn'); if (b) b.textContent = 'MARK IT — VERIFY ME LATER'; }, 1600);
+    renderMarks();
+  };
   $('chBtn').onclick = () => {
     const url = location.origin + location.pathname + '?t=' + encodeURIComponent(pair.baseToken.address);
     const text = 'exitliq.wtf calls $' + sym + ' "' + S.title + '" (' + a.score + '/100).\n\nwrong, because ';
@@ -652,6 +670,65 @@ async function check(addr) {
   } catch (e) {
     setStatus('data source hiccup (' + (e.message || e) + '). try again in a few seconds.', true);
   }
+}
+
+// ---- marks: the user's own falsification experiment (localStorage only) ----
+const MARKS_KEY = 'exitliq_marks_v1';
+const loadMarks = () => { try { return JSON.parse(localStorage.getItem(MARKS_KEY) || '[]'); } catch (e) { return []; } };
+const saveMarks = (m) => { try { localStorage.setItem(MARKS_KEY, JSON.stringify(m.slice(-50))); } catch (e) {} };
+
+function gradeMark(sig, chg) {
+  if (chg == null) return ['—', 'var(--text-muted)', 'PRICE UNAVAILABLE'];
+  if (sig === 'PVE_MOMENT' || sig === 'PVE_BUILDING') return chg >= 0 ? ['✓', 'var(--state-pve)', 'VERDICT HELD'] : ['✗', 'var(--state-exit)', 'VERDICT MISSED'];
+  if (sig === 'EXIT_LIQ' || sig === 'STRUCT_RISK') return chg <= 0 ? ['✓', 'var(--state-pve)', 'VERDICT HELD'] : ['✗', 'var(--state-exit)', 'VERDICT MISSED'];
+  return ['○', 'var(--text-muted)', 'NO DIRECTIONAL CLAIM'];
+}
+
+async function fetchMarkPrices(addrs) {
+  const out = {};
+  for (let i = 0; i < addrs.length; i += 25) {
+    try {
+      const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + addrs.slice(i, i + 25).join(','));
+      if (!r.ok) continue;
+      const d = await r.json();
+      for (const p of (d.pairs || [])) {
+        if (!p.baseToken || !p.baseToken.address) continue;
+        const k = p.baseToken.address.toLowerCase();
+        const liq = ((p.liquidity || {}).usd) || 0;
+        if (!out[k] || liq > out[k].liq) out[k] = { liq, price: +p.priceUsd || 0 };
+      }
+    } catch (e) {}
+  }
+  return out;
+}
+
+async function renderMarks() {
+  const marks = loadMarks();
+  const sec = $('marksSec');
+  if (!marks.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  const list = $('marksList');
+  list.innerHTML = '<div style="font-size:11px;color:var(--text-secondary);"><span class="blink">▮</span> marking to market…</div>';
+  const prices = await fetchMarkPrices([...new Set(marks.map(m => m.addr))]);
+  list.innerHTML = '';
+  [...marks].reverse().forEach((m) => {
+    const cur = (prices[m.addr.toLowerCase()] || {}).price || null;
+    const chg = (cur && m.price) ? (cur / m.price - 1) * 100 : null;
+    const g = gradeMark(m.sig, chg);
+    const S = SIGNALS[m.sig] || SIGNALS.NEUTRAL;
+    const el = document.createElement('div');
+    el.className = 'rcard';
+    el.style.setProperty('--sig', S.color);
+    el.innerHTML =
+      '<div class="rrow"><div class="rmeta"><span class="rsym">$' + m.sym + '</span><span class="rchain">' + m.chain.toUpperCase() + '</span><span class="rpill">' + S.label + '</span></div>' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;"><span class="grotesk" style="font-size:15px;font-weight:700;color:' + (chg == null ? 'var(--text-muted)' : chg >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">' + (chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%') + '</span>' +
+      '<span class="mkdel" title="delete mark" style="cursor:pointer;color:var(--text-muted);font-size:15px;padding:4px 6px;">×</span></div></div>' +
+      '<div class="rline">marked ' + fmtAge((Date.now() - m.at) / 36e5) + ' ago @ ' + fmtPrice(m.price) + (cur ? ' → now ' + fmtPrice(cur) : '') + '</div>' +
+      '<div class="rline sub">the verdict said ' + S.label + ' · <span style="color:' + g[1] + '">' + g[0] + ' ' + g[2] + '</span></div>';
+    el.querySelector('.mkdel').onclick = (e) => { e.stopPropagation(); saveMarks(loadMarks().filter(x => x.at !== m.at)); renderMarks(); };
+    el.onclick = () => { $('ca').value = m.addr; check(m.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    list.appendChild(el);
+  });
 }
 
 // ================= RADAR =================
@@ -853,6 +930,8 @@ window.addEventListener('storage', (e) => {
 
 $('go').onclick = () => check($('ca').value);
 $('ca').addEventListener('keydown', (e) => { if (e.key === 'Enter') check($('ca').value); });
+$('mkRefresh').onclick = renderMarks;
+renderMarks();
 const bootParams = new URLSearchParams(location.search);
 const qp = bootParams.get('t');
 if (qp) { $('ca').value = qp; check(qp); }
