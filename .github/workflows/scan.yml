@@ -1,0 +1,28 @@
+name: radar scan
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # every ~10 min (GitHub may add a few minutes of jitter)
+  workflow_dispatch: {}       # manual trigger button
+permissions:
+  contents: write
+concurrency:
+  group: radar-scan
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: run scanner
+        run: node scanner.mjs
+      - name: commit feed + ledger
+        run: |
+          git config user.name "exitliq-radar"
+          git config user.email "radar@users.noreply.github.com"
+          git add feed.json verdicts.jsonl
+          git diff --cached --quiet || git commit -m "scan $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push

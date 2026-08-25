@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>am i exit liq? · exitliq.wtf</title>
+<meta name="description" content="Paste a token address. Find out which buyer layer you'd be — before you click buy.">
+<meta property="og:title" content="am i exit liq? · exitliq.wtf">
+<meta property="og:description" content="Paste a CA. We read the structure and tell you who buys after you.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'><path d='M2 18h5v-4h5v-4h5V6h3' stroke='%233ce88e' stroke-width='2.2' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #0a0b0d; --surface: #12141a; --surface2: #0e1014; --border: #1f232c;
+    --text: #e8eaf0; --dim: #8b90a0; --faint: #565b68;
+    --green: #3ce88e; --lime: #b9e04a; --amber: #ffb02e; --red: #ff4d5e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', 'SF Mono', Menlo, monospace; -webkit-font-smoothing: antialiased; }
+  .grotesk { font-family: 'Space Grotesk', sans-serif; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 28px 18px 60px 18px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+  .logo { display: flex; align-items: center; gap: 9px; }
+  .logo b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .06em; }
+  .tagchip { font-size: 10px; color: var(--dim); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; letter-spacing: .08em; }
+  .hero { margin: 0 0 18px 0; }
+  .hero h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px; line-height: 1.08; margin: 0 0 10px 0; letter-spacing: .01em; }
+  .hero p { font-size: 12px; color: var(--dim); line-height: 1.7; margin: 0; }
+  .inrow { display: flex; gap: 8px; margin: 18px 0 8px 0; }
+  #ca { flex: 1; min-width: 0; height: 50px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px; padding: 0 14px; outline: none; }
+  #ca:focus { border-color: #3a4150; }
+  #go { height: 50px; padding: 0 22px; border: none; border-radius: 6px; background: var(--green); color: var(--bg); font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .05em; cursor: pointer; }
+  #go:active { transform: translateY(1px); }
+  .hint { font-size: 10px; color: var(--faint); }
+  #status { margin: 26px 0; font-size: 12px; color: var(--dim); display: none; }
+  .blink { animation: bl 1.1s steps(2) infinite; } @keyframes bl { 50% { opacity: .25; } }
+  #card { display: none; margin-top: 22px; border-radius: 10px; padding: 24px 20px 20px 20px; border: 1px solid var(--border); background: var(--surface); }
+  .vhead { display: flex; justify-content: space-between; align-items: center; font-size: 10px; letter-spacing: .12em; margin-bottom: 14px; }
+  .vtitle { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 38px; line-height: 1.05; letter-spacing: .01em; margin: 0 0 12px 0; }
+  .vwhy { font-size: 13px; line-height: 1.65; margin-bottom: 16px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 16px; }
+  .tile { background: rgba(0,0,0,.28); border-radius: 6px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tile b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 21px; }
+  .tile span { font-size: 8px; color: var(--dim); letter-spacing: .08em; }
+  .secttl { font-size: 10px; color: var(--dim); letter-spacing: .1em; margin: 18px 0 10px 0; }
+  .bar { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar label { width: 118px; font-size: 10px; color: var(--dim); flex-shrink: 0; }
+  .bar .tr { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar .fl { height: 6px; border-radius: 3px; }
+  .bar em { width: 28px; text-align: right; font-size: 11px; font-style: normal; }
+  .stairbox { background: rgba(0,0,0,.28); border-radius: 8px; padding: 12px; }
+  .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .btn { height: 50px; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .04em; cursor: pointer; border: none; text-decoration: none; }
+  .btn.primary { background: var(--text); color: var(--bg); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--dim); font-weight: 400; }
+  .foot { margin-top: 34px; font-size: 10px; color: var(--faint); line-height: 1.8; }
+  details { margin-top: 18px; border: 1px dashed var(--border); border-radius: 8px; padding: 12px 14px; }
+  summary { font-size: 11px; color: var(--dim); cursor: pointer; letter-spacing: .06em; }
+  details p { font-size: 10px; color: var(--faint); line-height: 1.8; }
+  .err { color: var(--red); }
+  .rhead { display: flex; justify-content: space-between; align-items: center; margin: 36px 0 4px 0; }
+  #rescan { height: 34px; padding: 0 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-family: inherit; font-size: 11px; cursor: pointer; letter-spacing: .05em; }
+  #rescan:disabled { opacity: .4; cursor: default; }
+  .rchips { display: flex; gap: 8px; margin: 12px 0; }
+  .rchip { height: 28px; padding: 0 12px; display: flex; align-items: center; border-radius: 4px; font-size: 10px; cursor: pointer; background: var(--surface); border: 1px solid var(--border); color: var(--dim); letter-spacing: .06em; }
+  .rchip.on { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+  #rstatus { font-size: 11px; color: var(--dim); margin: 8px 0 12px 0; min-height: 16px; }
+  #rfeed { display: flex; flex-direction: column; gap: 10px; }
+  .rcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 9px; }
+  .rcard:hover { background: #171a21; }
+  .rrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .rmeta { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .rsym { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; }
+  .rchain { font-size: 9px; color: var(--dim); border: 1px solid var(--border); border-radius: 3px; padding: 2px 5px; }
+  .rpill { font-size: 9px; font-weight: 600; border-radius: 3px; padding: 4px 7px; letter-spacing: .05em; color: var(--bg); flex-shrink: 0; }
+  .rscore { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; }
+  .rline { font-size: 11px; color: var(--dim); }
+  .rbot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .ministair { width: 104px; flex-shrink: 0; }
+  .badge { font-size: 9px; color: var(--amber); border: 1px dashed #3d2c10; border-radius: 3px; padding: 2px 6px; margin-left: 6px; }
+  #receipts { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  #receipts:not(:empty) { margin: 6px 0 10px 0; }
+  .chip { flex-shrink: 0; display: flex; align-items: center; gap: 6px; font-size: 10px; border: 1px dashed var(--border); border-radius: 4px; padding: 7px 10px; cursor: pointer; color: var(--text); background: var(--surface2); }
+  .chip b { font-weight: 600; }
+  .chip span { color: var(--faint); }
+  .cabtn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; background: rgba(0,0,0,.25); border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .04em; }
+  .cabtn:hover { color: var(--text); border-color: #3a4150; }
+  .cabtn.ok { color: var(--green); border-color: #1c3a2a; }
+  .cabtn.warn { color: var(--amber); border-color: #3d2c10; }
+  @media (max-width: 480px) { .vtitle { font-size: 31px; } .hero h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 18h5v-4h5v-4h5V6h3" stroke="#3ce88e" stroke-width="2.2" stroke-linecap="square"/></svg>
+      <b>EXITLIQ.WTF</b>
+    </div>
+    <div class="tagchip">BETA · FREE</div>
+  </header>
+
+  <div class="hero">
+    <h1>am i exit liq?</h1>
+    <p>paste a CA. we replay the tape and count the buyer layers —<br>so you know which one you'd be, before you click buy.</p>
+  </div>
+
+  <div class="inrow">
+    <input id="ca" placeholder="paste token address (SOL / BSC / BASE / RH / ETH)" autocomplete="off" spellcheck="false">
+    <button id="go">CHECK</button>
+  </div>
+  <div class="hint">reads public trade data only. nothing signed, nothing stored, not advice.</div>
+
+  <div id="status"></div>
+  <div id="card"></div>
+
+  <div class="rhead">
+    <div class="secttl" style="margin: 0;">THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS</div>
+    <button id="rescan">RESCAN</button>
+  </div>
+  <div style="font-size: 10px; color: var(--faint); line-height: 1.7; margin-bottom: 4px;">the radar scans trending pools on SOL / BSC / BASE / ROBINHOOD every few minutes and replays each tape for structure. majors, stables and unreadable assets are skipped — a radar that pings everything pings nothing. tap a card for the full verdict.</div>
+  <div id="receipts"></div>
+  <div class="rchips" id="rchips">
+    <div class="rchip on" data-c="ALL">ALL</div>
+    <div class="rchip" data-c="solana">SOL</div>
+    <div class="rchip" data-c="bsc">BSC</div>
+    <div class="rchip" data-c="base">BASE</div>
+    <div class="rchip" data-c="robinhood">RH</div>
+  </div>
+  <div id="rstatus"></div>
+  <div id="rfeed"></div>
+
+  <details>
+    <summary>METHODOLOGY — how the verdict is made</summary>
+    <p>
+      We pull up to 41 days of hourly candles (GeckoTerminal) plus live flow (DexScreener) and replay a level state machine:
+      a <b>level</b> is born when price closes ≥2% above the running all-time-high of the window. Four hours later we check back —
+      holding ≥85% of the breakout confirms the level (a buyer layer stood its ground); sinking ≤60% is a round-trip (that layer got dumped on).
+      Confirmed levels, buy pressure, green-day streak, volume trend and retention combine into a 0–100 structure score.
+      A recent round-trip with no new level after it = you'd be the exit. Nothing here predicts the future; it reads the present honestly.
+      Wrong verdicts happen — we'd rather be checkable than comfortable.
+    </p>
+  </details>
+
+  <div class="foot">
+    exitliq.wtf reads structure, not fortunes. we never block a trade — your click, your receipt.<br>
+    data: dexscreener + geckoterminal public APIs · no keys, no backend, no tracking.
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const GT_NET = { solana: 'solana', bsc: 'bsc', base: 'base', ethereum: 'eth', arbitrum: 'arbitrum', polygonpos: 'polygon_pos', polygon: 'polygon_pos', avalanche: 'avax' };
+const SIGNALS = {
+  PVE_MOMENT:   { title: 'STRUCTURE HOLDS', sub: 'PVE MOMENT', color: 'var(--green)', border: '#1c3a2a', bg: '#0d1f16' },
+  PVE_BUILDING: { title: 'STRUCTURE FORMING', sub: 'PVE BUILDING', color: 'var(--lime)', border: '#2a3316', bg: '#141a0c' },
+  NEUTRAL:      { title: 'NO EDGE EITHER WAY', sub: 'NEUTRAL CHOP', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
+  PVP_CHURN:    { title: 'PURE PVP CASINO', sub: 'MUSICAL CHAIRS', color: 'var(--amber)', border: '#3d2c10', bg: '#191207' },
+  STRUCT_RISK:  { title: 'STRUCTURE IS CRACKING', sub: 'STRUCTURE RISK', color: 'var(--red)', border: '#4a1a22', bg: '#16090c' },
+  EXIT_LIQ:     { title: "YOU'D BE EXIT LIQ", sub: 'EXIT LIQUIDITY RISK', color: 'var(--red)', border: '#4a1a22', bg: '#16090c' },
+  TOO_EARLY:    { title: 'NO STRUCTURE YET', sub: 'TOO EARLY / PURE ROULETTE', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
+  OOS:          { title: 'NOT A TRENCH ASSET', sub: 'OUT OF SCOPE', color: '#aab0bf', border: 'var(--border)', bg: 'var(--surface)' },
+};
+
+// ---- asset-domain gate: this tool reads buyer layers on DEXes, nothing else ----
+const STABLES = new Set(['USDT','USDC','DAI','FDUSD','USDE','TUSD','USD1','PYUSD','BUSD','USDS']);
+const MAJORS = new Set(['ETH','WETH','BTC','WBTC','BTCB','CBBTC','SOLVBTC','STETH','WSTETH','WEETH','CBETH','RETH','BNSOL','JITOSOL','MSOL','JUPSOL','XRP','SOL','WSOL','BNB','WBNB','ADA','DOGE','TRX','LTC','LINK','AVAX','MATIC','POL','TON','SUI','HYPE','DOT','BCH','XLM','SHIB','PEPE']);
+const TOKENIZED_EQUITY = /^(NVDA|TSLA|AAPL|MSFT|GOOGL?|AMZN|META|SPY|QQQ|COIN|MSTR|HOOD|CRCL)[XC]?$/;
+function gateReason({ sym, mcap, vol24, ageDays }) {
+  const s = (sym || '').toUpperCase().replace(/^\$+/, '');
+  if (STABLES.has(s)) return 'stable';
+  if (MAJORS.has(s)) return 'major';
+  if (TOKENIZED_EQUITY.test(s)) return 'major';
+  if (mcap > 500e6) return 'major';
+  if (ageDays > 730 && mcap > 50e6) return 'major';
+  if (mcap > 100e6 && vol24 > 0 && vol24 / mcap < 0.005) return 'shadow';
+  return null;
+}
+
+function setStatus(msg, isErr) {
+  const s = $('status');
+  s.style.display = 'block';
+  s.innerHTML = isErr ? '<span class="err">' + msg + '</span>' : '<span class="blink">▮</span> ' + msg;
+}
+function clearStatus() { $('status').style.display = 'none'; }
+
+async function fetchPair(addr) {
+  const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + encodeURIComponent(addr));
+  if (!r.ok) throw new Error('dexscreener ' + r.status);
+  const d = await r.json();
+  const pairs = (d.pairs || []).filter(p => p.baseToken && (p.baseToken.address === addr || p.baseToken.address.toLowerCase() === addr.toLowerCase()));
+  if (!pairs.length) return null;
+  pairs.sort((a, b) => ((b.liquidity || {}).usd || 0) - ((a.liquidity || {}).usd || 0));
+  return pairs[0];
+}
+
+const candleCache = {};
+async function fetchCandles(chainId, poolAddr) {
+  const net = GT_NET[chainId] || chainId;
+  const key = net + ':' + poolAddr;
+  if (candleCache[key] && Date.now() - candleCache[key].at < 10 * 60e3) return candleCache[key].data;
+  let r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/pools/' + poolAddr + '/ohlcv/hour?aggregate=1&limit=1000');
+  if (r.status === 429) { // per-IP rate limit — breathe and retry once
+    await new Promise(res => setTimeout(res, 12000));
+    r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/pools/' + poolAddr + '/ohlcv/hour?aggregate=1&limit=1000');
+  }
+  if (!r.ok) throw new Error('geckoterminal ' + r.status);
+  const d = await r.json();
+  const list = (((d.data || {}).attributes || {}).ohlcv_list || []).slice();
+  list.sort((a, b) => a[0] - b[0]); // ascending time
+  const out = list.map(c => ({ t: c[0], o: +c[1], h: +c[2], l: +c[3], c: +c[4], v: +c[5] }));
+  candleCache[key] = { at: Date.now(), data: out };
+  return out;
+}
+
+// ---- level state machine (mirror of the CLI agent) ----
+const BREAKOUT = 1.02, CONFIRM_H = 4, HOLD = 0.85, FAIL = 0.60;
+function replayLevels(candles) {
+  const levels = [];
+  let pending = null;
+  if (candles.length < 6) return { levels, pending, ath: candles.length ? Math.max(...candles.map(c => c.h)) : 0 };
+  let ath = candles[0].h;
+  let i = 1;
+  while (i < candles.length) {
+    const c = candles[i];
+    if (c.c > ath * BREAKOUT) {
+      const bPrice = c.c, bTime = c.t;
+      if (i + CONFIRM_H < candles.length) {
+        const later = candles[i + CONFIRM_H].c;
+        const ratio = later / bPrice;
+        levels.push({ price: bPrice, t: bTime, held: ratio >= HOLD, failed: ratio <= FAIL, ratio });
+        // advance past the confirm window; keep ath updated through it
+        for (let k = i; k <= i + CONFIRM_H; k++) ath = Math.max(ath, candles[k].h);
+        i += CONFIRM_H + 1;
+        continue;
+      } else {
+        pending = { price: bPrice, t: bTime, confirmsIn: (i + CONFIRM_H - (candles.length - 1)) };
+        ath = Math.max(ath, c.h);
+        i++;
+        continue;
+      }
+    }
+    ath = Math.max(ath, c.h);
+    i++;
+  }
+  return { levels, pending, ath };
+}
+
+function greenStreak(candles) {
+  // group by UTC day → daily close vs open
+  const days = {};
+  for (const c of candles) {
+    const d = new Date(c.t * 1000).toISOString().slice(0, 10);
+    if (!days[d]) days[d] = { o: c.o, c: c.c };
+    days[d].c = c.c;
+  }
+  const keys = Object.keys(days).sort();
+  let streak = 0;
+  for (let i = keys.length - 1; i >= 0; i--) {
+    const d = days[keys[i]];
+    if (d.c > d.o) streak++; else break;
+  }
+  return streak;
+}
+
+function analyze(pair, candles) {
+  const now = Date.now() / 1000;
+  const price = +pair.priceUsd || (candles.length ? candles[candles.length - 1].c : 0);
+  const { levels, pending, ath } = replayLevels(candles);
+  const tx = (pair.txns || {}).h24 || { buys: 0, sells: 0 };
+  const buys = tx.buys || 0, sells = tx.sells || 0;
+  const buyRatio = (buys + sells) > 0 ? buys / (buys + sells) : 0.5;
+  const vol24 = ((pair.volume || {}).h24) || 0;
+  const vol6 = ((pair.volume || {}).h6) || 0;
+  const mcap = pair.marketCap || pair.fdv || 0;
+  const turnover = mcap > 0 ? vol24 / mcap : 0;
+  const retention = ath > 0 ? price / ath : 0;
+  const streak = greenStreak(candles);
+
+  const H96 = now - 96 * 3600;
+  const held96 = levels.filter(l => l.held && l.t >= H96).length;
+  const heldAll = levels.filter(l => l.held).length;
+  const lastFail = [...levels].reverse().find(l => l.failed);
+  const failAgeH = lastFail ? (now - lastFail.t - CONFIRM_H * 3600) / 3600 : null;
+  const heldAfterFail = lastFail ? levels.some(l => l.held && l.t > lastFail.t) : false;
+
+  // score
+  const sLevels = Math.min(held96, 3) / 3 * 100;
+  const sBuyers = buyRatio * 100;
+  const sStreak = Math.min(streak, 5) / 5 * 100;
+  const volTrend = vol24 > 0 ? Math.min((vol6 * 4) / vol24, 2) / 2 * 100 : 0;
+  const sRet = retention * 100;
+  const score = Math.round(sLevels * .35 + sBuyers * .25 + sStreak * .15 + volTrend * .10 + sRet * .15);
+
+  // verdict
+  let sig, why;
+  const tooEarly = candles.length < 8;
+  if (tooEarly) {
+    sig = 'TOO_EARLY';
+    why = 'Less than 8 hours of trading history. There are no buyer layers to read — anyone entering now is gambling on distribution that doesn\'t exist yet. That\'s not a structure trade, that\'s a coin flip with extra steps.';
+  } else if (lastFail && failAgeH !== null && failAgeH <= 12 && !heldAfterFail) {
+    sig = 'EXIT_LIQ';
+    why = 'A buyer layer round-tripped ' + fmtAge(failAgeH) + ' ago and no new layer has held since. Holders above your entry are underwater and waiting to sell into strength — your click is the strength.';
+  } else if (score >= 62 && held96 >= 1) {
+    sig = 'PVE_MOMENT';
+    why = held96 + ' buyer layer' + (held96 > 1 ? 's' : '') + ' confirmed in the last 96h and buys are still showing up near the highs. New money keeps absorbing at ATH — that\'s what a PvE moment looks like while it lasts.';
+  } else if (pending && score >= 45) {
+    sig = 'PVE_BUILDING';
+    why = 'A breakout is live but unconfirmed — the new layer proves itself in ~' + pending.confirmsIn + 'h. If it holds ≥85% of the breakout, a level is born. Entering now means betting on that confirmation, not on confirmed structure.';
+  } else if (turnover > 3 && heldAll === 0) {
+    sig = 'PVP_CHURN';
+    why = 'Turnover is ' + turnover.toFixed(1) + '× market cap with zero confirmed levels — the same money is rotating between hands without creating new layers. Pure musical chairs: someone wins your seat, not the environment.';
+  } else if (score <= 45) {
+    sig = 'STRUCT_RISK';
+    why = 'Weak structure: ' + (heldAll === 0 ? 'no confirmed buyer layers' : 'levels are old and retention is ' + Math.round(retention * 100) + '% of ATH') + ', sell pressure at ' + Math.round((1 - buyRatio) * 100) + '%. Nothing here says new buyers are arriving.';
+  } else {
+    sig = 'NEUTRAL';
+    why = 'Mixed tape — some structure (' + heldAll + ' level' + (heldAll !== 1 ? 's' : '') + ' all-time, ' + held96 + ' in 96h), but no fresh confirmation and no fresh failure. No edge in either direction; whatever you do here, size like you\'re guessing.';
+  }
+
+  const layer = heldAll + (pending ? 1 : 0) + 1;
+  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap };
+}
+
+function fmtAge(h) { return h < 1 ? Math.max(1, Math.round(h * 60)) + 'm' : h < 48 ? Math.round(h) + 'h' : Math.round(h / 24) + 'd'; }
+function fmtUsd(n) { if (!n) return '—'; if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K'; return '$' + n.toFixed(0); }
+function fmtPrice(p) { if (p >= 1) return '$' + p.toFixed(2); if (p >= 0.001) return '$' + p.toFixed(4); return '$' + p.toPrecision(3); }
+
+// ---- one-click CA copy ----
+const shortCA = (a) => a.length > 12 ? a.slice(0, 6) + '…' + a.slice(-4) : a;
+const caBtnHTML = (addr) => '<button class="cabtn" data-ca="' + addr + '"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor"/><path d="M8 4V2.5A1.5 1.5 0 006.5 1H2.5A1.5 1.5 0 001 2.5v4A1.5 1.5 0 002.5 8H4" stroke="currentColor"/></svg>' + shortCA(addr) + '</button>';
+async function copyCA(addr, btn) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(addr); ok = true; } catch (e) {
+    try { const t = document.createElement('textarea'); t.value = addr; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove(); } catch (e2) {}
+  }
+  if (btn) {
+    const old = btn.innerHTML;
+    const cls = ok ? 'ok' : 'warn';
+    btn.classList.add(cls);
+    btn.innerHTML = ok ? 'CA COPIED — GODSPEED' : 'COPY BLOCKED — LONG-PRESS IT';
+    setTimeout(() => { btn.classList.remove(cls); btn.innerHTML = old; }, 1500);
+  }
+}
+function wireCA(root) {
+  [...root.querySelectorAll('.cabtn')].forEach(b => b.onclick = (e) => { e.stopPropagation(); copyCA(b.dataset.ca, b); });
+}
+
+function stairSVG(levels, pending, color) {
+  const evs = levels.slice(-5);
+  const W = 480, H = 130, base = H - 18;
+  const n = evs.length + (pending ? 1 : 0);
+  if (!n) return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '"><line x1="8" y1="' + base + '" x2="' + (W - 8) + '" y2="' + base + '" stroke="#1f232c"/><text x="' + W / 2 + '" y="' + (base - 26) + '" fill="#565b68" font-size="11" text-anchor="middle" font-family="IBM Plex Mono,monospace">no levels formed in the window</text></svg>';
+  const stepW = (W - 40) / (n + 1);
+  const rise = Math.min(26, (base - 26) / n);
+  let x = 12, y = base, path = 'M' + x + ',' + y, marks = '';
+  evs.forEach((l) => {
+    x += stepW; path += ' H' + x.toFixed(0);
+    if (l.held) {
+      y -= rise; path += ' V' + y.toFixed(0);
+      marks += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="4" fill="' + color + '"/>';
+    } else if (l.failed) {
+      const drop = Math.min(rise * 1.4, base - y - 4);
+      y += drop; path += ' V' + y.toFixed(0);
+      marks += '<path d="M' + (x - 5) + ' ' + (y - drop - 8) + 'l10 10M' + (x + 5) + ' ' + (y - drop - 8) + 'l-10 10" stroke="var(--red)" stroke-width="1.8"/>';
+    } else {
+      marks += '<circle cx="' + x.toFixed(0) + '" cy="' + y.toFixed(0) + '" r="4" fill="none" stroke="#565b68" stroke-width="1.6"/>';
+    }
+  });
+  let pendMark = '';
+  if (pending) {
+    x += stepW;
+    pendMark = '<path d="M' + (x - stepW).toFixed(0) + ' ' + (y - rise).toFixed(0) + ' H' + x.toFixed(0) + '" stroke="' + color + '" stroke-width="2.4" stroke-dasharray="5 5"/>' +
+      '<circle cx="' + (x - stepW).toFixed(0) + '" cy="' + (y - rise).toFixed(0) + '" r="4" fill="#0a0b0d" stroke="' + color + '" stroke-width="2"/>';
+    path += ' V' + (y - rise).toFixed(0);
+  }
+  return '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '"><line x1="8" y1="' + base + '" x2="' + (W - 8) + '" y2="' + base + '" stroke="#1f232c"/>' +
+    '<path d="' + path + '" stroke="' + color + '" stroke-width="2.4" fill="none" stroke-linecap="square"/>' + pendMark + marks + '</svg>';
+}
+
+let last = null;
+
+function renderOOS(pair, reason) {
+  const S = SIGNALS.OOS;
+  const sym = pair.baseToken.symbol.replace(/^\$*/, '');
+  const card = $('card');
+  card.style.display = 'block';
+  card.style.borderColor = S.border;
+  card.style.background = S.bg;
+  const copy = reason === 'stable'
+    ? '$' + sym + ' is a stablecoin. if you\'re exit liq here, we have bigger problems than this tool can solve.'
+    : '$' + sym + ' isn\'t priced by buyer layers on a DEX — it\'s priced by CEXs, ETFs and macro flow this tool can\'t see. The on-chain pools are its shadow, not its market. If it dumps on you, that\'s not exit liquidity. That\'s just called a market.';
+  card.innerHTML =
+    '<div class="vhead"><span style="color:var(--dim)">VERDICT · ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC</span><span style="color:var(--faint)">DOMAIN CHECK</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">' +
+      '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
+      '<span style="font-size:11px;color:var(--dim)">mcap ' + fmtUsd(pair.marketCap || pair.fdv || 0) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
+    '<div class="vtitle" style="color:' + S.color + '">' + S.title + '</div>' +
+    '<div class="vwhy">' + copy + '</div>' +
+    '<div style="font-size:10px;color:var(--faint);line-height:1.7;">exitliq.wtf only reads assets whose price is made of discrete buyer layers on-chain: micro/mid-cap memes in their distribution phase. Majors and stables are out of scope — a tool that answers everything can be trusted on nothing.</div>' +
+    '<div style="margin-top:12px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
+    '<div class="actions"><a class="btn ghost" id="again">CHECK SOMETHING FROM THE TRENCHES</a></div>';
+  wireCA(card);
+  $('again').onclick = () => { $('ca').value = ''; $('ca').focus(); card.style.display = 'none'; history.replaceState(null, '', location.pathname); };
+}
+
+function render(pair, a) {
+  const S = SIGNALS[a.sig];
+  const sym = pair.baseToken.symbol.replace(/^\$*/, '');
+  const ts = new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+  const rid = '#' + Math.abs([...(pair.baseToken.address + ts)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) | 0, 7)).toString().slice(0, 5);
+  last = { pair, a, sym, ts, rid };
+  const card = $('card');
+  card.style.display = 'block';
+  card.style.borderColor = S.border;
+  card.style.background = S.bg;
+  const barColor = S.color;
+  const bars = [
+    ['LEVELS ×.35', a.parts.sLevels], ['BUY PRESSURE ×.25', a.parts.sBuyers],
+    ['STREAK ×.15', a.parts.sStreak], ['VOLUME ×.10', a.parts.volTrend], ['RETENTION ×.15', a.parts.sRet],
+  ].map(([lb, v]) => '<div class="bar"><label>' + lb + '</label><div class="tr"><div class="fl" style="width:' + Math.round(v) + '%;background:' + barColor + '"></div></div><em>' + Math.round(v) + '</em></div>').join('');
+
+  card.innerHTML =
+    '<div class="vhead"><span style="color:' + S.color + '">VERDICT · ' + ts + '</span><span style="color:var(--faint)">' + rid + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">' +
+      '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
+      '<span style="font-size:11px;color:var(--dim)">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(a.mcap) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
+    '<div style="margin-bottom:12px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
+    '<div class="vtitle" style="color:' + S.color + '">' + S.title + '</div>' +
+    '<div class="vwhy">' + a.why + '</div>' +
+    '<div class="tiles">' +
+      '<div class="tile"><b style="color:' + S.color + '">' + a.score + '</b><span>STRUCTURE</span></div>' +
+      '<div class="tile"><b style="color:' + S.color + '">L' + a.layer + '</b><span>' + (a.layer === 1 ? 'NO FLOOR BELOW YOU' : 'YOUR LAYER · 41D') + '</span></div>' +
+      '<div class="tile"><b style="color:' + S.color + '">' + a.sells24 + '%</b><span>SELLS 24H</span></div></div>' +
+    '<div class="secttl">THE STAIRCASE — recent levels (solid = held · × = round-trip · dashed = pending)</div>' +
+    '<div class="stairbox">' + stairSVG(a.levels, a.pending, S.color) + '</div>' +
+    '<div class="secttl">WHY ' + a.score + '</div>' + bars +
+    '<div class="actions">' +
+      '<a class="btn primary" id="shareX">SHARE VERDICT ON 𝕏</a>' +
+      '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT PNG</a>' +
+      '<a class="btn ghost" id="again">CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT</a></div>';
+
+  wireCA(card);
+  $('shareX').onclick = shareX;
+  $('dlR').onclick = downloadReceipt;
+  $('again').onclick = () => { $('ca').value = ''; $('ca').focus(); card.style.display = 'none'; history.replaceState(null, '', location.pathname); };
+}
+
+function shareX() {
+  const { a, sym } = last;
+  const S = SIGNALS[a.sig];
+  const url = location.origin + location.pathname + '?t=' + encodeURIComponent($('ca').value.trim());
+  const text = 'i checked $' + sym + ' before aping.\n\nverdict: ' + S.title + '\nstructure ' + a.score + '/100 · you\'d be layer L' + a.layer + ' · sells ' + a.sells24 + '%\n\nwho buys after you?\n';
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
+}
+
+function downloadReceipt() {
+  const { a, sym, ts, rid } = last;
+  const S = SIGNALS[a.sig];
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = 760;
+  const g = cv.getContext('2d');
+  const col = { green: '#3ce88e', lime: '#b9e04a', amber: '#ffb02e', red: '#ff4d5e', gray: '#aab0bf' };
+  const main = a.sig === 'EXIT_LIQ' || a.sig === 'STRUCT_RISK' ? col.red : a.sig === 'PVE_MOMENT' ? col.green : a.sig === 'PVE_BUILDING' ? col.lime : a.sig === 'PVP_CHURN' ? col.amber : col.gray;
+  g.fillStyle = '#0a0b0d'; g.fillRect(0, 0, 640, 760);
+  g.strokeStyle = '#262b36'; g.lineWidth = 2; g.strokeRect(24, 24, 592, 712);
+  const mono = (s) => s + 'px "IBM Plex Mono", monospace';
+  const grot = (s, w) => (w || 700) + ' ' + s + 'px "Space Grotesk", sans-serif';
+  // header
+  g.strokeStyle = main; g.lineWidth = 3; g.beginPath();
+  g.moveTo(56, 84); g.lineTo(76, 84); g.lineTo(76, 72); g.lineTo(96, 72); g.lineTo(96, 60); g.lineTo(116, 60); g.stroke();
+  g.fillStyle = '#e8eaf0'; g.font = grot(22); g.fillText('EXIT LIQ RECEIPT', 132, 84);
+  g.fillStyle = '#8b90a0'; g.font = mono(15); g.textAlign = 'right'; g.fillText(rid, 584, 82); g.textAlign = 'left';
+  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 112); g.lineTo(584, 112); g.stroke(); g.setLineDash([]);
+  // token + verdict
+  g.fillStyle = '#e8eaf0'; g.font = grot(40); g.fillText('$' + sym, 56, 178);
+  g.fillStyle = '#8b90a0'; g.font = mono(15); g.textAlign = 'right'; g.fillText('checked @ ' + fmtPrice(a.price), 584, 174); g.textAlign = 'left';
+  g.fillStyle = main; g.font = grot(44);
+  wrapText(g, S.title, 56, 250, 528, 50);
+  // rows
+  g.font = mono(16);
+  const rows = [['verdict', S.sub], ['structure score', a.score + ' / 100'], ['your buyer layer', 'L' + a.layer], ['sells 24h', a.sells24 + '%'], ['timestamp', ts]];
+  let y = 356;
+  rows.forEach(([k, v]) => {
+    g.fillStyle = '#8b90a0'; g.fillText(k, 56, y);
+    g.fillStyle = k === 'verdict' ? main : '#e8eaf0'; g.textAlign = 'right'; g.fillText(String(v), 584, y); g.textAlign = 'left';
+    y += 40;
+  });
+  // note box
+  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.strokeRect(56, y, 528, 110); g.setLineDash([]);
+  g.fillStyle = '#565b68'; g.font = mono(13);
+  wrapText(g, 'verdicts are timestamped when issued. we keep the wrong ones too — that is the point.', 74, y + 34, 494, 22);
+  // footer
+  g.strokeStyle = '#262b36'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 696); g.lineTo(584, 696); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#8b90a0'; g.font = mono(14); g.fillText('who buys after you?', 56, 726);
+  g.fillStyle = main; g.textAlign = 'right'; g.fillText('exitliq.wtf', 584, 726); g.textAlign = 'left';
+  const aEl = document.createElement('a');
+  aEl.download = 'layers-receipt-' + sym + '-' + rid.slice(1) + '.png';
+  aEl.href = cv.toDataURL('image/png');
+  aEl.click();
+}
+function wrapText(g, text, x, y, maxW, lh) {
+  const words = text.split(' '); let line = '';
+  for (const w of words) {
+    if (g.measureText(line + w).width > maxW && line) { g.fillText(line.trim(), x, y); line = w + ' '; y += lh; }
+    else line += w + ' ';
+  }
+  g.fillText(line.trim(), x, y);
+}
+
+async function check(addr) {
+  addr = addr.trim();
+  if (!addr) return;
+  $('card').style.display = 'none';
+  try {
+    setStatus('reading the tape…');
+    const pair = await fetchPair(addr);
+    if (!pair) { setStatus('no pair found — either too fresh, wrong address, or already dead. all three are answers.', true); return; }
+    const reason = gateReason({
+      sym: pair.baseToken.symbol,
+      mcap: pair.marketCap || pair.fdv || 0,
+      vol24: ((pair.volume || {}).h24) || 0,
+      ageDays: pair.pairCreatedAt ? (Date.now() - pair.pairCreatedAt) / 864e5 : 0,
+    });
+    if (reason) { clearStatus(); renderOOS(pair, reason); history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr)); return; }
+    setStatus('counting buyer layers on $' + pair.baseToken.symbol + '…');
+    let candles = [];
+    try { candles = await fetchCandles(pair.chainId, pair.pairAddress); } catch (e) { candles = []; }
+    setStatus('asking who buys after you…');
+    const a = analyze(pair, candles);
+    clearStatus();
+    render(pair, a);
+    history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr));
+  } catch (e) {
+    setStatus('data source hiccup (' + (e.message || e) + '). try again in a few seconds.', true);
+  }
+}
+
+// ================= RADAR =================
+const RADAR_CHAINS = ['solana', 'bsc', 'base', 'robinhood'];
+const RANK = { PVE_MOMENT: 0, PVE_BUILDING: 1, EXIT_LIQ: 2, STRUCT_RISK: 3, PVP_CHURN: 4, NEUTRAL: 5 };
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+let scanning = false;
+
+async function fetchTrending(net) {
+  try {
+    const r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/trending_pools?page=1');
+    if (!r.ok) return [];
+    const d = await r.json();
+    return (d.data || []).map(p => {
+      const a = p.attributes || {};
+      const rel = (((p.relationships || {}).base_token || {}).data || {});
+      return {
+        chain: net, pool: a.address,
+        addr: (rel.id || '').split('_').slice(1).join('_'),
+        sym: (a.name || '?').split(' / ')[0].trim().replace(/^\$+/, ''),
+        price: +a.base_token_price_usd || 0,
+        mcap: +(a.market_cap_usd || a.fdv_usd) || 0,
+        vol24: +(((a.volume_usd) || {}).h24) || 0,
+        vol6: +(((a.volume_usd) || {}).h6) || 0,
+        buys: ((((a.transactions) || {}).h24) || {}).buys || 0,
+        sells: ((((a.transactions) || {}).h24) || {}).sells || 0,
+        ageDays: a.pool_created_at ? (Date.now() - new Date(a.pool_created_at).getTime()) / 864e5 : 0,
+      };
+    }).filter(t => t.addr && t.pool);
+  } catch (e) { return []; }
+}
+
+const pseudoPair = (t) => ({
+  priceUsd: t.price, chainId: t.chain, marketCap: t.mcap,
+  txns: { h24: { buys: t.buys, sells: t.sells } },
+  volume: { h24: t.vol24, h6: t.vol6 },
+  baseToken: { symbol: t.sym, address: t.addr },
+});
+
+function radarLine(a) {
+  const now = Date.now() / 1000;
+  const lastHeld = [...a.levels].reverse().find(l => l.held);
+  if (a.sig === 'PVE_MOMENT') return 'L' + a.heldAll + ' held ' + (lastHeld ? fmtAge((now - lastHeld.t) / 3600) + ' ago' : '') + ' · buys ' + (100 - a.sells24) + '%';
+  if (a.sig === 'PVE_BUILDING') return 'breakout live · confirms in ~' + (a.pending ? a.pending.confirmsIn : '?') + 'h';
+  if (a.sig === 'EXIT_LIQ') return 'layer round-tripped · no new floor since';
+  if (a.sig === 'PVP_CHURN') return 'turnover ' + a.turnover.toFixed(1) + '× mcap · zero levels held';
+  if (a.sig === 'STRUCT_RISK') return (a.heldAll ? 'levels stale' : 'no levels in 41d') + ' · ' + Math.round(a.retention * 100) + '% of 41d high';
+  return a.heldAll + ' level' + (a.heldAll !== 1 ? 's' : '') + ' all-time · nothing fresh either way';
+}
+
+function insertRadarCard(t, a, prevSig) {
+  const S = SIGNALS[a.sig];
+  const el = document.createElement('div');
+  el.className = 'rcard';
+  el.dataset.chain = t.chain;
+  el.dataset.rank = RANK[a.sig] != null ? RANK[a.sig] : 9;
+  el.dataset.score = a.score;
+  el.style.borderColor = S.border;
+  const changed = prevSig && prevSig !== a.sig ? '<span class="badge">Δ was ' + prevSig.replace('PVE_', '').replace('_', ' ') + '</span>' : '';
+  el.innerHTML =
+    '<div class="rrow"><div class="rmeta"><span class="rsym">$' + t.sym + '</span><span class="rchain">' + t.chain.toUpperCase() + '</span>' + changed + '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;"><span class="rpill" style="background:' + S.color + '">' + S.sub.split(' / ')[0] + '</span><span class="rscore" style="color:' + S.color + '">' + a.score + '</span></div></div>' +
+    '<div class="rbot"><div style="min-width:0;"><div class="rline">' + radarLine(a) + '</div>' +
+    '<div class="rline" style="color:var(--faint);margin-top:3px;">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(t.mcap) + ' · vol ' + fmtUsd(t.vol24) + '</div>' +
+    '<div style="margin-top:8px;">' + caBtnHTML(t.addr) + '</div></div>' +
+    '<div class="ministair">' + stairSVG(a.levels, a.pending, S.color) + '</div></div>';
+  el.onclick = () => { $('ca').value = t.addr; check(t.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  wireCA(el);
+  const feed = $('rfeed');
+  const at = [...feed.children].find(k => +k.dataset.rank > +el.dataset.rank || (+k.dataset.rank === +el.dataset.rank && +k.dataset.score < a.score));
+  feed.insertBefore(el, at || null);
+  applyRadarFilter();
+}
+
+function renderReceipts(rs) {
+  if (!rs.length) { $('receipts').innerHTML = ''; return; }
+  rs.sort((x, y) => y.fwd - x.fwd);
+  $('receipts').innerHTML = rs.slice(0, 8).map(r =>
+    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--green)' : 'var(--red)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer held ' + r.age + ' ago</span></div>').join('');
+  [...$('receipts').children].forEach(c => c.onclick = () => { $('ca').value = c.dataset.addr; check(c.dataset.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+}
+
+function applyRadarFilter() {
+  const f = document.querySelector('.rchip.on').dataset.c;
+  [...$('rfeed').children].forEach(k => { k.style.display = (f === 'ALL' || k.dataset.chain === f) ? '' : 'none'; });
+}
+[...document.querySelectorAll('.rchip')].forEach(ch => ch.onclick = () => {
+  [...document.querySelectorAll('.rchip')].forEach(x => x.classList.remove('on'));
+  ch.classList.add('on'); applyRadarFilter();
+});
+
+// scan results cache: instant paint on open, one scanner per device
+function feedCacheLoad() {
+  try { const c = JSON.parse(localStorage.getItem('layers_feed_v1') || 'null'); return (c && Date.now() - c.at < 30 * 60e3) ? c : null; } catch (e) { return null; }
+}
+function feedCacheSave(results) { try { localStorage.setItem('layers_feed_v1', JSON.stringify({ at: Date.now(), results })); } catch (e) {} }
+function buildReceipts(results) {
+  const now = Date.now() / 1000, out = [];
+  for (const { t, a } of results) for (const l of a.levels) if (l.held && now - l.t < 24 * 3600 && l.price > 0) out.push({ sym: t.sym, addr: t.addr, age: fmtAge((now - l.t) / 3600), fwd: (a.price / l.price - 1) * 100 });
+  return out;
+}
+function renderFeedFrom(results) {
+  $('rfeed').innerHTML = '';
+  for (const { t, a } of results) insertRadarCard(t, a, null);
+  renderReceipts(buildReceipts(results));
+}
+
+async function radarScan(force) {
+  if (scanning) return;
+  const lockAt = +(localStorage.getItem('layers_scanlock') || 0);
+  if (!force && Date.now() - lockAt < 150e3) {
+    $('rstatus').innerHTML = 'another exitliq.wtf tab on this device is scanning — this feed updates from its results (one scanner per device keeps the data source happy)';
+    return;
+  }
+  scanning = true; $('rescan').disabled = true;
+  const hadCards = $('rfeed').children.length > 0;
+  if (!hadCards) { $('rfeed').innerHTML = ''; $('receipts').innerHTML = ''; }
+  $('rstatus').innerHTML = '<span class="blink">▮</span> pulling trending pools on 4 chains…';
+  const lists = await Promise.all(RADAR_CHAINS.map(fetchTrending));
+  const seen = new Set(); const cands = []; let skippedOOS = 0;
+  for (const t of lists.flat()) {
+    const k = t.chain + ':' + t.addr;
+    if (seen.has(k)) continue; seen.add(k);
+    if (gateReason({ sym: t.sym, mcap: t.mcap, vol24: t.vol24, ageDays: t.ageDays })) { skippedOOS++; continue; }
+    if (t.vol24 < 20000) continue;
+    cands.push(t);
+  }
+  cands.sort((x, y) => y.vol24 - x.vol24);
+  const perChain = {};
+  const scanList = cands.filter(t => (perChain[t.chain] = (perChain[t.chain] || 0) + 1) <= 5);
+  const prev = JSON.parse(localStorage.getItem('layers_seen_v1') || '{}');
+  const results = []; let done = 0, tooEarly = 0, unreadable = 0, consecFail = 0, aborted = false;
+  for (const t of scanList) {
+    done++;
+    localStorage.setItem('layers_scanlock', String(Date.now()));
+    $('rstatus').innerHTML = '<span class="blink">▮</span> reading structure ' + done + '/' + scanList.length + ' — $' + t.sym + '…';
+    try {
+      const candles = await fetchCandles(t.chain, t.pool);
+      consecFail = 0;
+      const a = analyze(pseudoPair(t), candles);
+      if (a.sig === 'TOO_EARLY') { tooEarly++; }
+      else {
+        results.push({ t, a });
+        if (!hadCards) insertRadarCard(t, a, prev[t.addr]);
+        prev[t.addr] = a.sig;
+      }
+    } catch (e) {
+      unreadable++; consecFail++;
+      if (consecFail >= 3) { aborted = true; break; }
+    }
+    await sleep(4000);
+  }
+  localStorage.setItem('layers_seen_v1', JSON.stringify(prev));
+  localStorage.removeItem('layers_scanlock');
+  if (results.length) {
+    feedCacheSave(results);
+    if (hadCards) renderFeedFrom(results); else renderReceipts(buildReceipts(results));
+  }
+  scanning = false; $('rescan').disabled = false;
+  if (aborted) {
+    $('rstatus').innerHTML = '<span class="err">the data source is rate-limiting this device (' + results.length + ' read, ' + unreadable + ' blocked — too many tabs open?). auto-retry in 90s.</span>';
+    setTimeout(() => radarScan(false), 90e3);
+  } else {
+    $('rstatus').innerHTML = 'scan done · ' + results.length + ' readable · ' + tooEarly + ' too fresh · ' + skippedOOS + ' out-of-scope' + (unreadable ? ' · ' + unreadable + ' unreadable' : '') + ' · auto-rescan in 5m';
+  }
+}
+// central feed mode: a scheduled scanner commits feed.json next to this page.
+// if it exists and is fresh, every visitor reads it — zero API calls from browsers.
+let central = false;
+async function tryCentralFeed() {
+  try {
+    const r = await fetch('feed.json', { cache: 'no-store' });
+    if (!r.ok) return false;
+    const d = await r.json();
+    if (!d || !Array.isArray(d.results) || !d.results.length) return false;
+    const ageM = Math.round((Date.now() - d.at) / 60e3);
+    if (ageM > 25) return false; // scanner is down — fall back to solo scan
+    central = true;
+    renderFeedFrom(d.results);
+    $('rstatus').innerHTML = 'central scan · ' + ageM + 'm old · ' + d.results.length + ' readable · your browser makes zero data calls in this mode';
+    return true;
+  } catch (e) { return false; }
+}
+
+$('rescan').onclick = () => { if (central) tryCentralFeed(); else radarScan(true); };
+setInterval(() => {
+  if (document.hidden) return;
+  if (central) tryCentralFeed(); else radarScan(false);
+}, 5 * 60e3);
+window.addEventListener('storage', (e) => {
+  if (e.key === 'layers_feed_v1' && !scanning) {
+    const c = feedCacheLoad();
+    if (c) { renderFeedFrom(c.results); $('rstatus').innerHTML = 'feed refreshed by another tab · ' + c.results.length + ' readable'; }
+  }
+});
+
+$('go').onclick = () => check($('ca').value);
+$('ca').addEventListener('keydown', (e) => { if (e.key === 'Enter') check($('ca').value); });
+const bootParams = new URLSearchParams(location.search);
+const qp = bootParams.get('t');
+if (qp) { $('ca').value = qp; check(qp); }
+(async () => {
+  if (!bootParams.get('solo') && await tryCentralFeed()) return; // central mode active
+  const bootCache = feedCacheLoad();
+  if (bootCache) {
+    renderFeedFrom(bootCache.results);
+    const ageM = Math.round((Date.now() - bootCache.at) / 60e3);
+    $('rstatus').innerHTML = 'showing local scan from ' + ageM + 'm ago' + (ageM >= 4 ? ' · rescanning…' : ' · fresh');
+    if (ageM >= 4) radarScan(false);
+  } else {
+    radarScan(false);
+  }
+})();
+</script>
+</body>
+</html>
