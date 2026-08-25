@@ -74,7 +74,8 @@ function replayLevels(candles) {
       if (i + CONFIRM_H < candles.length) {
         const later = candles[i + CONFIRM_H].c;
         const ratio = later / bPrice;
-        levels.push({ price: bPrice, t: bTime, held: ratio >= HOLD, failed: ratio <= FAIL, ratio });
+        // confT/confPrice = when the signal became knowable — receipts measure from HERE (no lookahead)
+        levels.push({ price: bPrice, t: bTime, confT: candles[i + CONFIRM_H].t, confPrice: later, held: ratio >= HOLD, failed: ratio <= FAIL, ratio });
         for (let k = i; k <= i + CONFIRM_H; k++) ath = Math.max(ath, candles[k].h);
         i += CONFIRM_H + 1;
         continue;
@@ -125,7 +126,7 @@ function analyze(pair, candles) {
   const held96 = levels.filter(l => l.held && l.t >= H96).length;
   const heldAll = levels.filter(l => l.held).length;
   const lastFail = [...levels].reverse().find(l => l.failed);
-  const failAgeH = lastFail ? (now - lastFail.t - CONFIRM_H * 3600) / 3600 : null;
+  const failAgeH = lastFail ? (now - (lastFail.confT || lastFail.t + CONFIRM_H * 3600)) / 3600 : null;
   const heldAfterFail = lastFail ? levels.some(l => l.held && l.t > lastFail.t) : false;
 
   const sLevels = Math.min(held96, 3) / 3 * 100;
@@ -161,7 +162,7 @@ function analyze(pair, candles) {
   }
 
   const layer = heldAll + (pending ? 1 : 0) + 1;
-  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap };
+  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap, nCandles: candles.length };
 }
 
 const pseudoPair = (t) => ({

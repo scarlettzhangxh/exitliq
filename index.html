@@ -84,6 +84,8 @@
   .chip { flex-shrink: 0; display: flex; align-items: center; gap: 6px; font-size: 10px; border: 1px dashed var(--border); border-radius: 4px; padding: 7px 10px; cursor: pointer; color: var(--text); background: var(--surface2); }
   .chip b { font-weight: 600; }
   .chip span { color: var(--faint); }
+  .prow { display: flex; justify-content: space-between; gap: 12px; font-size: 10px; color: var(--dim); }
+  .prow a { font-size: 10px; }
   .cabtn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; background: rgba(0,0,0,.25); border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .04em; }
   .cabtn:hover { color: var(--text); border-color: #3a4150; }
   .cabtn.ok { color: var(--green); border-color: #1c3a2a; }
@@ -132,14 +134,28 @@
   <div id="rfeed"></div>
 
   <details>
-    <summary>METHODOLOGY — how the verdict is made</summary>
+    <summary>METHODOLOGY &amp; DATA — the full recipe, limits first</summary>
     <p>
-      We pull up to 41 days of hourly candles (GeckoTerminal) plus live flow (DexScreener) and replay a level state machine:
-      a <b>level</b> is born when price closes ≥2% above the running all-time-high of the window. Four hours later we check back —
-      holding ≥85% of the breakout confirms the level (a buyer layer stood its ground); sinking ≤60% is a round-trip (that layer got dumped on).
-      Confirmed levels, buy pressure, green-day streak, volume trend and retention combine into a 0–100 structure score.
-      A recent round-trip with no new level after it = you'd be the exit. Nothing here predicts the future; it reads the present honestly.
-      Wrong verdicts happen — we'd rather be checkable than comfortable.
+      <b>Data.</b> GeckoTerminal hourly OHLCV (up to 1000 candles ≈ 41 days) on the token's deepest pool, plus DexScreener live pair stats
+      (price, buy/sell transaction counts, volume, mcap). Both public and free — every verdict's PROOF section links to the raw sources, replay it yourself.
+    </p>
+    <p>
+      <b>Rules, exact constants.</b> Breakout = 1h close ≥2% above the running window high. 4h later: still ≥85% of breakout = layer HELD;
+      ≤60% = ROUND-TRIP. Score = levels ×.35 + buy pressure ×.25 + green-day streak ×.15 + volume trend ×.10 + retention ×.15.
+      EXIT LIQ = a round-trip within 12h and nothing held since. Breakouts and holds are judged on <b>closes</b>, not wicks —
+      painting a candle is cheap, holding a price for 4 hours against real sellers is not.
+    </p>
+    <p>
+      <b>Known limits, before you find them.</b> DEX data only — that's why majors and stables are refused (NOT A TRENCH ASSET), never mis-scored.
+      "ATH" means the 41-day window high. Buy pressure counts transactions, not size — wash-tradeable, which is why it only carries .25 weight
+      and why fake volume with zero held levels flags as PVP CHURN instead of scoring well. Single deepest pool, not cross-pool aggregate. No holder data yet (v2).
+      Receipts measure forward returns from the <b>confirmation close</b> (breakout +4h) — the first moment the signal actually existed. No lookahead.
+    </p>
+    <p>
+      <b>Falsification.</b> The thresholds are priors, not curve-fits, and they're being calibrated against forward-return buckets in public.
+      Every verdict is committed to a public git ledger with tamper-evident timestamps — wrong ones included:
+      <a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>.
+      If the favorable buckets don't beat the risk buckets, this product deserves to die. That's the deal.
     </p>
   </details>
 
@@ -229,7 +245,8 @@ function replayLevels(candles) {
       if (i + CONFIRM_H < candles.length) {
         const later = candles[i + CONFIRM_H].c;
         const ratio = later / bPrice;
-        levels.push({ price: bPrice, t: bTime, held: ratio >= HOLD, failed: ratio <= FAIL, ratio });
+        // confT/confPrice = when the signal became knowable — receipts measure from HERE, never from the breakout (no lookahead)
+        levels.push({ price: bPrice, t: bTime, confT: candles[i + CONFIRM_H].t, confPrice: later, held: ratio >= HOLD, failed: ratio <= FAIL, ratio });
         // advance past the confirm window; keep ath updated through it
         for (let k = i; k <= i + CONFIRM_H; k++) ath = Math.max(ath, candles[k].h);
         i += CONFIRM_H + 1;
@@ -282,7 +299,7 @@ function analyze(pair, candles) {
   const held96 = levels.filter(l => l.held && l.t >= H96).length;
   const heldAll = levels.filter(l => l.held).length;
   const lastFail = [...levels].reverse().find(l => l.failed);
-  const failAgeH = lastFail ? (now - lastFail.t - CONFIRM_H * 3600) / 3600 : null;
+  const failAgeH = lastFail ? (now - (lastFail.confT || lastFail.t + CONFIRM_H * 3600)) / 3600 : null;
   const heldAfterFail = lastFail ? levels.some(l => l.held && l.t > lastFail.t) : false;
 
   // score
@@ -320,7 +337,7 @@ function analyze(pair, candles) {
   }
 
   const layer = heldAll + (pending ? 1 : 0) + 1;
-  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap };
+  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap, nCandles: candles.length };
 }
 
 function fmtAge(h) { return h < 1 ? Math.max(1, Math.round(h * 60)) + 'm' : h < 48 ? Math.round(h) + 'h' : Math.round(h / 24) + 'd'; }
@@ -329,6 +346,7 @@ function fmtPrice(p) { if (p >= 1) return '$' + p.toFixed(2); if (p >= 0.001) re
 
 // ---- one-click CA copy ----
 const shortCA = (a) => a.length > 12 ? a.slice(0, 6) + '…' + a.slice(-4) : a;
+const fmtUTC = (ts) => { const d = new Date(ts * 1000); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + String(d.getUTCHours()).padStart(2, '0') + ':00 UTC'; };
 const caBtnHTML = (addr) => '<button class="cabtn" data-ca="' + addr + '"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor"/><path d="M8 4V2.5A1.5 1.5 0 006.5 1H2.5A1.5 1.5 0 001 2.5v4A1.5 1.5 0 002.5 8H4" stroke="currentColor"/></svg>' + shortCA(addr) + '</button>';
 async function copyCA(addr, btn) {
   let ok = false;
@@ -436,14 +454,32 @@ function render(pair, a) {
     '<div class="secttl">THE STAIRCASE — recent levels (solid = held · × = round-trip · dashed = pending)</div>' +
     '<div class="stairbox">' + stairSVG(a.levels, a.pending, S.color) + '</div>' +
     '<div class="secttl">WHY ' + a.score + '</div>' + bars +
+    '<div class="secttl">PROOF — CHECK OUR WORK</div>' +
+    '<div style="display:flex;flex-direction:column;gap:7px;">' +
+      '<div class="prow"><span>pool read</span><a href="https://www.geckoterminal.com/' + (GT_NET[pair.chainId] || pair.chainId) + '/pools/' + pair.pairAddress + '" target="_blank" rel="noopener">' + shortCA(pair.pairAddress) + ' ↗</a></div>' +
+      '<div class="prow"><span>tape</span><span>' + a.nCandles + ' × 1h candles (~' + Math.round(a.nCandles / 24) + 'd window)</span></div>' +
+      (a.levels.slice(-4).map(l => {
+        const pct = Math.round(l.ratio * 100);
+        const tag = l.held ? '<span style="color:var(--green)">HELD ' + pct + '%</span>' : l.failed ? '<span style="color:var(--red)">ROUND-TRIP ' + pct + '%</span>' : '<span style="color:var(--dim)">DRIFT ' + pct + '%</span>';
+        return '<div class="prow"><span>' + fmtUTC(l.t) + ' broke ' + fmtPrice(l.price) + '</span><span>+4h → ' + tag + '</span></div>';
+      }).join('') || '<div class="prow"><span>breakout events in window</span><span>none</span></div>') +
+      '<div class="prow"><span>live pair data</span><a href="https://dexscreener.com/' + pair.chainId + '/' + pair.pairAddress + '" target="_blank" rel="noopener">dexscreener ↗</a></div>' +
+      '<div class="prow"><span>verdict ledger (wrong ones kept)</span><a href="https://github.com/scarlettzhangxh/exitliq/blob/main/verdicts.jsonl" target="_blank" rel="noopener">public git log ↗</a></div>' +
+    '</div>' +
     '<div class="actions">' +
       '<a class="btn primary" id="shareX">SHARE VERDICT ON 𝕏</a>' +
       '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT PNG</a>' +
+      '<a class="btn ghost" id="chBtn">THINK IT\'S WRONG? POST THE COUNTER-CASE</a>' +
       '<a class="btn ghost" id="again">CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT</a></div>';
 
   wireCA(card);
   $('shareX').onclick = shareX;
   $('dlR').onclick = downloadReceipt;
+  $('chBtn').onclick = () => {
+    const url = location.origin + location.pathname + '?t=' + encodeURIComponent(pair.baseToken.address);
+    const text = 'exitliq.wtf calls $' + sym + ' "' + S.title + '" (' + a.score + '/100).\n\nwrong, because ';
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
+  };
   $('again').onclick = () => { $('ca').value = ''; $('ca').focus(); card.style.display = 'none'; history.replaceState(null, '', location.pathname); };
 }
 
@@ -576,7 +612,7 @@ const pseudoPair = (t) => ({
 function radarLine(a) {
   const now = Date.now() / 1000;
   const lastHeld = [...a.levels].reverse().find(l => l.held);
-  if (a.sig === 'PVE_MOMENT') return 'L' + a.heldAll + ' held ' + (lastHeld ? fmtAge((now - lastHeld.t) / 3600) + ' ago' : '') + ' · buys ' + (100 - a.sells24) + '%';
+  if (a.sig === 'PVE_MOMENT') return 'L' + a.heldAll + ' confirmed ' + (lastHeld ? fmtAge((now - (lastHeld.confT || lastHeld.t)) / 3600) + ' ago' : '') + ' · buys ' + (100 - a.sells24) + '%';
   if (a.sig === 'PVE_BUILDING') return 'breakout live · confirms in ~' + (a.pending ? a.pending.confirmsIn : '?') + 'h';
   if (a.sig === 'EXIT_LIQ') return 'layer round-tripped · no new floor since';
   if (a.sig === 'PVP_CHURN') return 'turnover ' + a.turnover.toFixed(1) + '× mcap · zero levels held';
@@ -612,7 +648,7 @@ function renderReceipts(rs) {
   if (!rs.length) { $('receipts').innerHTML = ''; return; }
   rs.sort((x, y) => y.fwd - x.fwd);
   $('receipts').innerHTML = rs.slice(0, 8).map(r =>
-    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--green)' : 'var(--red)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer held ' + r.age + ' ago</span></div>').join('');
+    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--green)' : 'var(--red)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer confirmed ' + r.age + ' ago</span></div>').join('');
   [...$('receipts').children].forEach(c => c.onclick = () => { $('ca').value = c.dataset.addr; check(c.dataset.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
@@ -632,7 +668,10 @@ function feedCacheLoad() {
 function feedCacheSave(results) { try { localStorage.setItem('layers_feed_v1', JSON.stringify({ at: Date.now(), results })); } catch (e) {} }
 function buildReceipts(results) {
   const now = Date.now() / 1000, out = [];
-  for (const { t, a } of results) for (const l of a.levels) if (l.held && now - l.t < 24 * 3600 && l.price > 0) out.push({ sym: t.sym, addr: t.addr, age: fmtAge((now - l.t) / 3600), fwd: (a.price / l.price - 1) * 100 });
+  for (const { t, a } of results) for (const l of a.levels) {
+    const sigT = l.confT || l.t, sigP = l.confPrice || l.price; // measure from confirmation — the first knowable moment
+    if (l.held && now - sigT < 24 * 3600 && sigP > 0) out.push({ sym: t.sym, addr: t.addr, age: fmtAge((now - sigT) / 3600), fwd: (a.price / sigP - 1) * 100 });
+  }
   return out;
 }
 function renderFeedFrom(results) {
