@@ -162,37 +162,40 @@
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 18h5v-4h5v-4h5V6h3" stroke="#83ff70" stroke-width="2.2" stroke-linecap="square"/></svg>
       <b>EXITLIQ.WTF</b>
     </div>
-    <div class="sysbadge"><i></i>SYSTEM ONLINE · BETA</div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button id="langBtn" class="sysbadge" style="cursor: pointer; font-family: inherit;">中文</button>
+      <div class="sysbadge"><i></i>SYSTEM ONLINE · BETA</div>
+    </div>
   </header>
 
   <div class="hero">
-    <h1>am i exit liq?</h1>
-    <p>paste a CA. we replay every new high, wait four hours, and check whether the floor held.</p>
+    <h1 id="heroH1">am i exit liq?</h1>
+    <p id="heroP">paste a CA. we replay every new high, wait four hours, and check whether the floor held.</p>
   </div>
 
   <div class="inrow">
     <input id="ca" placeholder="paste token address" autocomplete="off" spellcheck="false">
     <button id="go">CHECK</button>
   </div>
-  <div class="hint">public trade data only. nothing signed, nothing stored, not advice.</div>
+  <div class="hint" id="hintLine">public trade data only. nothing signed, nothing stored, not advice.</div>
 
   <div id="status"></div>
   <div id="card" class="marks"></div>
 
   <div id="marksSec" style="display: none;">
     <div class="rhead">
-      <div class="secttl" style="margin: 0;">YOUR MARKS — THE STRATEGY ON TRIAL</div>
+      <div class="secttl" style="margin: 0;" id="marksTitle">YOUR MARKS — THE STRATEGY ON TRIAL</div>
       <button id="mkRefresh">MARK TO MARKET</button>
     </div>
-    <div class="rquip">mark a verdict. come back later. judge us. marks live only in your browser — we can't touch them, can't delete the ones that embarrass us. graded live against the verdict's direction; 7 days is the honest horizon.</div>
+    <div class="rquip" id="marksQuip">mark a verdict. come back later. judge us. marks live only in your browser — we can't touch them, can't delete the ones that embarrass us. graded live against the verdict's direction; 7 days is the honest horizon.</div>
     <div id="marksList" style="display: flex; flex-direction: column; gap: 8px;"></div>
   </div>
 
   <div class="rhead">
-    <div class="secttl" style="margin: 0;">THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS</div>
+    <div class="secttl" style="margin: 0;" id="radarTitle">THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS</div>
     <button id="rescan">SCAN AGAIN</button>
   </div>
-  <div class="rquip">we scan the trenches so you don't have to. evidence first, cope later.</div>
+  <div class="rquip" id="radarQuip">we scan the trenches so you don't have to. evidence first, cope later.</div>
   <div id="receipts"></div>
   <div class="rchips" id="rchips">
     <div class="rchip on" data-c="ALL">ALL</div>
@@ -205,24 +208,24 @@
   <div id="rfeed"></div>
 
   <details>
-    <summary>METHODOLOGY &amp; DATA — the full recipe, limits first</summary>
-    <p>
+    <summary id="metSum">METHODOLOGY &amp; DATA — the full recipe, limits first</summary>
+    <p id="met1">
       <b>Data.</b> GeckoTerminal hourly OHLCV (up to 1000 candles ≈ 41 days) on the token's deepest pool, plus DexScreener live pair stats
       (price, buy/sell transaction counts, volume, mcap). Both public and free — every verdict's PROOF section links to the raw sources, replay it yourself.
     </p>
-    <p>
+    <p id="met2">
       <b>Rules, exact constants.</b> Breakout = 1h close ≥2% above the running window high. 4h later: still ≥85% of breakout = layer HELD;
       ≤60% = ROUND-TRIP. Score = levels ×.35 + buy pressure ×.25 + green-day streak ×.15 + volume trend ×.10 + retention ×.15.
       EXIT LIQ = a round-trip within 12h and nothing held since. Breakouts and holds are judged on <b>closes</b>, not wicks —
       painting a candle is cheap, holding a price for 4 hours against real sellers is not.
     </p>
-    <p>
+    <p id="met3">
       <b>Known limits, before you find them.</b> DEX data only — that's why majors and stables are refused (NOT A TRENCH ASSET), never mis-scored.
       "ATH" means the 41-day window high. Buy pressure counts transactions, not size — wash-tradeable, which is why it only carries .25 weight
       and why fake volume with zero held levels flags as PVP CHURN instead of scoring well. Single deepest pool, not cross-pool aggregate. No holder data yet (v2).
       Receipts measure forward returns from the <b>confirmation close</b> (breakout +4h) — the first moment the signal actually existed. No lookahead.
     </p>
-    <p>
+    <p id="met4">
       <b>Falsification.</b> The thresholds are priors, not curve-fits, and they're being calibrated against forward-return buckets in public.
       Every verdict is committed to a public git ledger with tamper-evident timestamps — wrong ones included:
       <a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>.
@@ -230,7 +233,7 @@
     </p>
   </details>
 
-  <div class="foot">
+  <div class="foot" id="footLine">
     exitliq.wtf reads structure, not fortunes. we never block a trade — your click, your receipt.<br>
     data: dexscreener + geckoterminal public APIs · no keys, no backend, no tracking.
   </div>
@@ -238,21 +241,80 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
+
+// ---- i18n: en/zh, follows system language, manual toggle persists ----
+let LANG = 'en';
+try { LANG = localStorage.getItem('exitliq_lang') || (((navigator.language || '')).toLowerCase().startsWith('zh') ? 'zh' : 'en'); } catch (e) {}
+const L = (en, zh) => LANG === 'zh' ? zh : en;
+function applyStatic() {
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
+  document.title = L('am i exit liq? · exitliq.wtf', '接盘侠检测器 · exitliq.wtf');
+  $('langBtn').textContent = LANG === 'zh' ? 'EN' : '中文';
+  $('heroH1').textContent = L('am i exit liq?', '接盘侠检测器');
+  $('heroP').textContent = L('paste a CA. we replay every new high, wait four hours, and check whether the floor held.', '贴一个合约地址。我们回放它的每一次新高，等四个小时，看那层地板是不是真的站住了。');
+  $('ca').placeholder = L('paste token address', '粘贴代币合约地址');
+  $('hintLine').textContent = L('public trade data only. nothing signed, nothing stored, not advice.', '只读公开交易数据。不签名、不存储、不构成投资建议。');
+  $('radarTitle').textContent = L('THE RADAR — LIVE TRENCH SCAN · TRENDING POOLS', '雷达 — 战壕实时扫描 · TRENDING 池');
+  $('rescan').textContent = L('SCAN AGAIN', '重新扫描');
+  $('radarQuip').textContent = L("we scan the trenches so you don't have to. evidence first, cope later.", '我们替你蹲战壕。先看证据，再谈信仰。');
+  $('marksTitle').textContent = L('YOUR MARKS — THE STRATEGY ON TRIAL', '你的标记 — 策略公审现场');
+  $('mkRefresh').textContent = L('MARK TO MARKET', '按现价对账');
+  $('marksQuip').textContent = L("mark a verdict. come back later. judge us. marks live only in your browser — we can't touch them, can't delete the ones that embarrass us. graded live against the verdict's direction; 7 days is the honest horizon.", '给判决打个标记，过几天回来审判我们。标记只存在你自己的浏览器里——我们碰不到，也删不掉那些让我们难堪的。评级按判决方向实时结算；7 天是诚实的观察期。');
+  $('metSum').textContent = L('METHODOLOGY & DATA — the full recipe, limits first', '方法论与数据 — 完整配方，先讲短板');
+  $('met1').innerHTML = L('<b>Data.</b> GeckoTerminal hourly OHLCV (up to 1000 candles ≈ 41 days) on the token\'s deepest pool, plus DexScreener live pair stats (price, buy/sell transaction counts, volume, mcap). Both public and free — every verdict\'s PROOF section links to the raw sources, replay it yourself.',
+    '<b>数据。</b>GeckoTerminal 小时级 K 线（最多 1000 根 ≈ 41 天），取该代币流动性最深的池子；加上 DexScreener 实时交易对数据（价格、买卖笔数、成交量、市值）。全部公开免费——每份判决的"底稿"区都直链原始数据，你可以自己重放一遍。');
+  $('met2').innerHTML = L('<b>Rules, exact constants.</b> Breakout = 1h close ≥2% above the running window high. 4h later: still ≥85% of breakout = layer HELD; ≤60% = ROUND-TRIP. Score = levels ×.35 + buy pressure ×.25 + green-day streak ×.15 + volume trend ×.10 + retention ×.15. EXIT LIQ = a round-trip within 12h and nothing held since. Breakouts and holds are judged on <b>closes</b>, not wicks — painting a candle is cheap, holding a price for 4 hours against real sellers is not.',
+    '<b>规则与精确常数。</b>突破 = 1 小时收盘价高出窗口高点 ≥2%。4 小时后回看：仍 ≥ 突破价的 85% = 买家层站住（HELD）；≤60% = 回吐（ROUND-TRIP）。结构分 = 买家层 ×.35 + 买盘 ×.25 + 连涨 ×.15 + 量能 ×.10 + 价格保持 ×.15。EXIT LIQ = 12 小时内有回吐、且此后无新层站住。突破与站住都按<b>收盘价</b>判定，不认影线——画一根蜡烛很便宜，顶着真实卖压把价格按住 4 小时不便宜。');
+  $('met3').innerHTML = L('<b>Known limits, before you find them.</b> DEX data only — that\'s why majors and stables are refused (NOT A TRENCH ASSET), never mis-scored. "ATH" means the 41-day window high. Buy pressure counts transactions, not size — wash-tradeable, which is why it only carries .25 weight and why fake volume with zero held levels flags as PVP CHURN instead of scoring well. Single deepest pool, not cross-pool aggregate. No holder data yet (v2). Receipts measure forward returns from the <b>confirmation close</b> (breakout +4h) — the first moment the signal actually existed. No lookahead.',
+    '<b>已知局限，先自己交代。</b>只有 DEX 数据——所以主流币和稳定币会被直接拒答（"这不是战壕资产"），而不是给出错误分数。"ATH" 指 41 天窗口高点。买盘按笔数不按金额——可以被刷单，所以只占 0.25 权重，而且刷量 + 零站住层会被判成 PVP，不会得高分。只读最深的单一池子，不做跨池聚合。还没有 holder 数据（v2）。收据的前向收益一律从<b>确认收盘价</b>（突破 +4h）起算——信号可知的第一刻。无前视偏差。');
+  $('met4').innerHTML = L('<b>Falsification.</b> The thresholds are priors, not curve-fits, and they\'re being calibrated against forward-return buckets in public. Every verdict is committed to a public git ledger with tamper-evident timestamps — wrong ones included: <a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>. If the favorable buckets don\'t beat the risk buckets, this product deserves to die. That\'s the deal.',
+    '<b>可证伪协议。</b>阈值是先验值，不是曲线拟合，正在用前向收益分桶公开校准。每份判决都提交进公开 git 账本，时间戳防篡改——错的也保留：<a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>。如果 favorable 桶跑不赢 risk 桶，这个产品就该死。就这么定。');
+  $('footLine').innerHTML = L('exitliq.wtf reads structure, not fortunes. we never block a trade — your click, your receipt.<br>data: dexscreener + geckoterminal public APIs · no keys, no backend, no tracking.',
+    'exitliq.wtf 读的是结构，不是命运。我们从不拦截交易——你的手指，你的收据。<br>数据：dexscreener + geckoterminal 公开 API · 无密钥、无后端、无跟踪。');
+}
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('exitliq_lang', l); } catch (e) {}
+  applyStatic();
+  if (last) render(last.pair, last.a);
+  renderMarks();
+  if (central) { tryCentralFeed(); }
+  else { const c = feedCacheLoad(); if (c && $('rfeed').children.length) renderFeedFrom(c.results); }
+}
 const GT_NET = { solana: 'solana', bsc: 'bsc', base: 'base', ethereum: 'eth', arbitrum: 'arbitrum', polygonpos: 'polygon_pos', polygon: 'polygon_pos', avalanche: 'avax' };
 // shared verdict-state mapping: tone → CSS token (DOM/SVG) + hex (canvas receipt)
 const TONE = { pve: 'var(--state-pve)', exit: 'var(--state-exit)', pvp: 'var(--state-pvp)', risk: 'var(--state-risk)', neutral: 'var(--state-neutral)' };
 const TONE_HEX = { pve: '#83ff70', exit: '#ff4764', pvp: '#f6c94c', risk: '#ff5a66', neutral: '#7d8580' };
 const SIGNALS = {
-  PVE_MOMENT:   { label: 'PVE MOMENT',     title: 'THE FLOOR HELD. FOR NOW.', tone: 'pve' },
-  PVE_BUILDING: { label: 'PVE BUILDING',   title: 'NEW FLOOR. NOT LOAD-BEARING YET.', tone: 'pve' },
-  NEUTRAL:      { label: 'NO EDGE',        title: 'NO NEW FLOOR. NO NEW EVIDENCE.', tone: 'neutral' },
-  PVP_CHURN:    { label: 'PVP',            title: 'NO NEW MONEY. JUST FASTER HANDS.', tone: 'pvp' },
-  STRUCT_RISK:  { label: 'STRUCTURE RISK', title: "NOBODY'S BUILDING. PLENTY ARE WAITING UPSTAIRS.", tone: 'risk' },
-  EXIT_LIQ:     { label: 'EXIT LIQ',       title: "YOU FOUND THE BUYERS. IT'S YOU.", tone: 'exit' },
-  TOO_EARLY:    { label: 'TOO EARLY',      title: 'NO STRUCTURE YET.', tone: 'neutral' },
-  OOS:          { label: 'OUT OF SCOPE',   title: 'NOT A TRENCH ASSET.', tone: 'neutral' },
+  PVE_MOMENT:   { label: 'PVE MOMENT',     title: 'THE FLOOR HELD. FOR NOW.', tzh: '地板站住了。暂时。', tone: 'pve' },
+  PVE_BUILDING: { label: 'PVE BUILDING',   title: 'NEW FLOOR. NOT LOAD-BEARING YET.', tzh: '新地板。还没承重。', tone: 'pve' },
+  NEUTRAL:      { label: 'NO EDGE',        title: 'NO NEW FLOOR. NO NEW EVIDENCE.', tzh: '没有新地板，也没有新证据。', tone: 'neutral' },
+  PVP_CHURN:    { label: 'PVP',            title: 'NO NEW MONEY. JUST FASTER HANDS.', tzh: '没有新钱进场，只有更快的手。', tone: 'pvp' },
+  STRUCT_RISK:  { label: 'STRUCTURE RISK', title: "NOBODY'S BUILDING. PLENTY ARE WAITING UPSTAIRS.", tzh: '没人在盖楼。楼上全是等着卖的人。', tone: 'risk' },
+  EXIT_LIQ:     { label: 'EXIT LIQ',       title: "YOU FOUND THE BUYERS. IT'S YOU.", tzh: '接盘的人找到了。是你。', tone: 'exit' },
+  TOO_EARLY:    { label: 'TOO EARLY',      title: 'NO STRUCTURE YET.', tzh: '还没有结构可读。', tone: 'neutral' },
+  OOS:          { label: 'OUT OF SCOPE',   title: 'NOT A TRENCH ASSET.', tzh: '这不是战壕资产。', tone: 'neutral' },
 };
 for (const k in SIGNALS) SIGNALS[k].color = TONE[SIGNALS[k].tone];
+const sigTitle = (S) => L(S.title, S.tzh);
+
+// verdict reasoning, rebuilt per language from the analysis primitives
+function buildWhy(a) {
+  if (a.sig === 'TOO_EARLY') return L('Less than 8 hours of trading history. There are no buyer layers to read — anyone entering now is gambling on distribution that doesn\'t exist yet. That\'s not a structure trade, that\'s a coin flip with extra steps.',
+    '交易历史不足 8 小时。没有任何买家层可读——现在进场，赌的是一个还不存在的筹码分布。那不是结构交易，是多了几个步骤的抛硬币。');
+  if (a.sig === 'EXIT_LIQ') return L('A buyer layer round-tripped ' + fmtAge(a.failAgeH) + ' ago and no new layer has held since. Holders above your entry are underwater and waiting to sell into strength — your click is the strength.',
+    fmtAge(a.failAgeH) + ' 前有一层买家被回吐，此后再没有新层站住。你上方的持有者全部被套，正等着反弹出货——你的买入就是那个反弹。');
+  if (a.sig === 'PVE_MOMENT') return L(a.held96 + ' buyer layer' + (a.held96 > 1 ? 's' : '') + ' confirmed in the last 96h and buys are still showing up near the highs. New money keeps absorbing at ATH — that\'s what a PvE moment looks like while it lasts.',
+    '过去 96 小时有 ' + a.held96 + ' 层买家确认站住，且高位仍有买盘持续进场。新钱不断在新高处接住卖压——PvE moment 存续时就是这个样子。');
+  if (a.sig === 'PVE_BUILDING') return L('A breakout is live but unconfirmed — the new layer proves itself in ~' + (a.pending ? a.pending.confirmsIn : '?') + 'h. If it holds ≥85% of the breakout, a level is born. Entering now means betting on that confirmation, not on confirmed structure.',
+    '一次突破正在进行但尚未确认——新的一层将在约 ' + (a.pending ? a.pending.confirmsIn : '?') + ' 小时后接受检验。若守住突破价的 85% 以上，一层地板就此诞生。现在进场，赌的是确认本身，而不是已确认的结构。');
+  if (a.sig === 'PVP_CHURN') return L('Turnover is ' + a.turnover.toFixed(1) + '× market cap with zero confirmed levels — the same money is rotating between hands without creating new layers. Pure musical chairs: someone wins your seat, not the environment.',
+    '换手率达市值的 ' + a.turnover.toFixed(1) + ' 倍，却没有任何一层站住——同一批钱在场内倒手，没有新层生成。纯粹的抢椅子：赢走你椅子的是对手，不是行情。');
+  if (a.sig === 'STRUCT_RISK') return L('Weak structure: ' + (a.heldAll === 0 ? 'no confirmed buyer layers' : 'levels are old and retention is ' + Math.round(a.retention * 100) + '% of ATH') + ', sell pressure at ' + a.sells24 + '%. Nothing here says new buyers are arriving.',
+    '结构疲弱：' + (a.heldAll === 0 ? '没有任何确认的买家层' : '已有的层陈旧，现价仅为高点的 ' + Math.round(a.retention * 100) + '%') + '，卖压 ' + a.sells24 + '%。没有任何迹象表明新买家在来的路上。');
+  return L('Mixed tape — some structure (' + a.heldAll + ' level' + (a.heldAll !== 1 ? 's' : '') + ' all-time, ' + a.held96 + ' in 96h), but no fresh confirmation and no fresh failure. No edge in either direction; whatever you do here, size like you\'re guessing.',
+    '走势混沌——有一些结构（历史共 ' + a.heldAll + ' 层，96 小时内 ' + a.held96 + ' 层），但既没有新确认也没有新崩塌。双向都没有优势；在这里无论做什么，仓位都按"猜"来配。');
+}
 
 // ---- asset-domain gate: this tool reads buyer layers on DEXes, nothing else ----
 const STABLES = new Set(['USDT','USDC','DAI','FDUSD','USDE','TUSD','USD1','PYUSD','BUSD','USDS']);
@@ -412,7 +474,7 @@ function analyze(pair, candles) {
   }
 
   const layer = heldAll + (pending ? 1 : 0) + 1;
-  return { sig, why, score, layer, held96, heldAll, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap, nCandles: candles.length };
+  return { sig, why, score, layer, held96, heldAll, failAgeH, buyRatio, sells24: Math.round((1 - buyRatio) * 100), levels, pending, retention, streak, turnover, parts: { sLevels, sBuyers, sStreak, volTrend, sRet }, price, mcap, nCandles: candles.length };
 }
 
 function fmtAge(h) { return h < 1 ? Math.max(1, Math.round(h * 60)) + 'm' : h < 48 ? Math.round(h) + 'h' : Math.round(h / 24) + 'd'; }
@@ -432,7 +494,7 @@ async function copyCA(addr, btn) {
     const old = btn.innerHTML;
     const cls = ok ? 'ok' : 'warn';
     btn.classList.add(cls);
-    btn.innerHTML = ok ? 'CA COPIED — GODSPEED' : 'COPY BLOCKED — LONG-PRESS IT';
+    btn.innerHTML = ok ? L('CA COPIED — GODSPEED', 'CA 已复制 — 一路顺风') : L('COPY BLOCKED — LONG-PRESS IT', '复制被拦 — 请长按地址');
     setTimeout(() => { btn.classList.remove(cls); btn.innerHTML = old; }, 1500);
   }
 }
@@ -497,19 +559,19 @@ function renderOOS(pair, reason) {
   card.style.display = 'block';
   card.classList.remove('reveal'); void card.offsetWidth; card.classList.add('reveal');
   const copy = reason === 'stable'
-    ? '$' + sym + ' is a stablecoin. if you\'re exit liq here, we have bigger problems than this tool can solve.'
-    : '$' + sym + ' isn\'t priced by buyer layers on a DEX — it\'s priced by CEXs, ETFs and macro flow this tool can\'t see. The on-chain pools are its shadow, not its market. If it dumps on you, that\'s not exit liquidity. That\'s just called a market.';
+    ? L('$' + sym + ' is a stablecoin. if you\'re exit liq here, we have bigger problems than this tool can solve.', '$' + sym + ' 是稳定币。如果你在这里都能当接盘侠，那问题比这个工具能解决的大多了。')
+    : L('$' + sym + ' isn\'t priced by buyer layers on a DEX — it\'s priced by CEXs, ETFs and macro flow this tool can\'t see. The on-chain pools are its shadow, not its market. If it dumps on you, that\'s not exit liquidity. That\'s just called a market.', '$' + sym + ' 的价格不是由 DEX 上的买家层决定的——它由 CEX、ETF 和宏观资金流定价，这些我们看不到。链上池子只是它的影子，不是它的市场。它砸到你头上，那不叫 exit liquidity，那叫行情。');
   card.innerHTML =
-    '<div class="vhead"><span>STRUCTURAL INSPECTION REPORT</span><span class="vid">DOMAIN CHECK · ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC</span></div>' +
+    '<div class="vhead"><span>' + L('STRUCTURAL INSPECTION REPORT', '结构检验报告') + '</span><span class="vid">' + L('DOMAIN CHECK', '资产域检查') + ' · ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC</span></div>' +
     '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;">' +
       '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
       '<span style="font-size:11px;color:var(--text-secondary)">mcap ' + fmtUsd(pair.marketCap || pair.fdv || 0) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
     '<div class="vbadge">' + S.label + '</div>' +
-    '<div class="vtitle">' + S.title + '</div>' +
+    '<div class="vtitle">' + sigTitle(S) + '</div>' +
     '<div class="vwhy">' + copy + '</div>' +
-    '<div style="font-size:10px;color:var(--text-muted);line-height:1.7;">exitliq.wtf only reads assets whose price is made of discrete buyer layers on-chain: micro/mid-cap memes in their distribution phase. Majors and stables are out of scope — a tool that answers everything can be trusted on nothing.</div>' +
+    '<div style="font-size:10px;color:var(--text-muted);line-height:1.7;">' + L('exitliq.wtf only reads assets whose price is made of discrete buyer layers on-chain: micro/mid-cap memes in their distribution phase. Majors and stables are out of scope — a tool that answers everything can be trusted on nothing.', 'exitliq.wtf 只读价格由链上离散买家层构成的资产：处于分发期的中小市值 meme。主流币和稳定币在能力圈之外——什么都敢回答的工具，什么都不可信。') + '</div>' +
     '<div style="margin-top:12px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
-    '<div class="actions"><a class="btn ghost" id="again">CHECK SOMETHING FROM THE TRENCHES</a></div>';
+    '<div class="actions"><a class="btn ghost" id="again">' + L('CHECK SOMETHING FROM THE TRENCHES', '查一个战壕里的币') + '</a></div>';
   wireCA(card);
   $('again').onclick = () => { $('ca').value = ''; $('ca').focus(); card.style.display = 'none'; history.replaceState(null, '', location.pathname); };
 }
@@ -530,40 +592,40 @@ function render(pair, a) {
   ].map(([lb, v]) => '<div class="bar"><label>' + lb + '</label><div class="tr"><div class="fl" style="width:' + Math.round(v) + '%"></div></div><em>' + Math.round(v) + '</em></div>').join('');
 
   card.innerHTML =
-    '<div class="vhead"><span>STRUCTURAL INSPECTION REPORT</span><span class="vid">' + ts + ' · ' + rid + '</span></div>' +
+    '<div class="vhead"><span>' + L('STRUCTURAL INSPECTION REPORT', '结构检验报告') + '</span><span class="vid">' + ts + ' · ' + rid + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;">' +
       '<span class="grotesk" style="font-weight:700;font-size:19px;">$' + sym + '</span>' +
       '<span style="font-size:11px;color:var(--text-secondary)">' + fmtPrice(a.price) + ' · mcap ' + fmtUsd(a.mcap) + ' · ' + pair.chainId.toUpperCase() + '</span></div>' +
     '<div style="margin-bottom:14px;">' + caBtnHTML(pair.baseToken.address) + '</div>' +
     '<div class="vbadge">' + S.label + '</div>' +
-    '<div class="vtitle">' + S.title + '</div>' +
-    '<div class="vwhy">' + a.why + '</div>' +
+    '<div class="vtitle">' + sigTitle(S) + '</div>' +
+    '<div class="vwhy">' + buildWhy(a) + '</div>' +
     '<div class="tiles">' +
-      '<div class="tile"><b>' + a.score + '</b><span>STRUCTURE</span></div>' +
-      '<div class="tile"><b>L' + a.layer + '</b><span>' + (a.layer === 1 ? 'NO FLOOR BELOW YOU' : 'YOUR LAYER · 41D') + '</span></div>' +
-      '<div class="tile"><b>' + a.sells24 + '%</b><span>SELLS 24H</span></div></div>' +
-    '<div class="secttl">THE STAIRCASE — RECENT LEVELS</div>' +
-    '<div class="legend">solid held. dashed pending. × means somebody paid tuition.</div>' +
+      '<div class="tile"><b>' + a.score + '</b><span>' + L('STRUCTURE', '结构分') + '</span></div>' +
+      '<div class="tile"><b>L' + a.layer + '</b><span>' + (a.layer === 1 ? L('NO FLOOR BELOW YOU', '你脚下没有地板') : L('YOUR LAYER · 41D', '你的层位 · 41天')) + '</span></div>' +
+      '<div class="tile"><b>' + a.sells24 + '%</b><span>' + L('SELLS 24H', '24小时卖压') + '</span></div></div>' +
+    '<div class="secttl">' + L('THE STAIRCASE — RECENT LEVELS', '台阶图 — 近期买家层') + '</div>' +
+    '<div class="legend">' + L('solid held. dashed pending. × means somebody paid tuition.', '实心 = 站住了。虚线 = 等待确认。× = 有人交了学费。') + '</div>' +
     '<div class="stairbox">' + stairSVG(a.levels, a.pending, S.color) + '</div>' +
-    '<div class="secttl">WHY ' + a.score + ' — RECEIPTS, NOT VIBES</div>' + bars +
-    '<div class="secttl">PROOF — DON\'T TRUST US. CHECK.</div>' +
+    '<div class="secttl">' + L('WHY ' + a.score + ' — RECEIPTS, NOT VIBES', '为什么是 ' + a.score + ' 分 — 只认收据，不认玄学') + '</div>' + bars +
+    '<div class="secttl">' + L('PROOF — DON\'T TRUST US. CHECK.', '底稿 — 别信我们，自己查') + '</div>' +
     '<div style="display:flex;flex-direction:column;gap:7px;">' +
-      '<div class="prow"><span>pool read</span><a href="https://www.geckoterminal.com/' + (GT_NET[pair.chainId] || pair.chainId) + '/pools/' + pair.pairAddress + '" target="_blank" rel="noopener">' + shortCA(pair.pairAddress) + ' ↗</a></div>' +
-      '<div class="prow"><span>tape</span><span>' + a.nCandles + ' × 1h candles (~' + Math.round(a.nCandles / 24) + 'd window)</span></div>' +
+      '<div class="prow"><span>' + L('pool read', '读取的池子') + '</span><a href="https://www.geckoterminal.com/' + (GT_NET[pair.chainId] || pair.chainId) + '/pools/' + pair.pairAddress + '" target="_blank" rel="noopener">' + shortCA(pair.pairAddress) + ' ↗</a></div>' +
+      '<div class="prow"><span>' + L('tape', 'K线数据') + '</span><span>' + a.nCandles + ' × 1h ' + L('candles', '根') + ' (~' + Math.round(a.nCandles / 24) + L('d window', ' 天窗口') + ')</span></div>' +
       (a.levels.slice(-4).map(l => {
         const pct = Math.round(l.ratio * 100);
-        const tag = l.held ? '<span style="color:var(--state-pve)">HELD ' + pct + '%</span>' : l.failed ? '<span style="color:var(--state-exit)">ROUND-TRIP ' + pct + '%</span>' : '<span style="color:var(--text-secondary)">DRIFT ' + pct + '%</span>';
-        return '<div class="prow"><span>' + fmtUTC(l.t) + ' broke ' + fmtPrice(l.price) + '</span><span>+4h → ' + tag + '</span></div>';
-      }).join('') || '<div class="prow"><span>breakout events in window</span><span>none</span></div>') +
-      '<div class="prow"><span>live pair data</span><a href="https://dexscreener.com/' + pair.chainId + '/' + pair.pairAddress + '" target="_blank" rel="noopener">dexscreener ↗</a></div>' +
-      '<div class="prow"><span>verdict ledger (wrong ones kept)</span><a href="https://github.com/scarlettzhangxh/exitliq/blob/main/verdicts.jsonl" target="_blank" rel="noopener">public git log ↗</a></div>' +
+        const tag = l.held ? '<span style="color:var(--state-pve)">' + L('HELD', '站住') + ' ' + pct + '%</span>' : l.failed ? '<span style="color:var(--state-exit)">' + L('ROUND-TRIP', '回吐') + ' ' + pct + '%</span>' : '<span style="color:var(--text-secondary)">' + L('DRIFT', '漂移') + ' ' + pct + '%</span>';
+        return '<div class="prow"><span>' + fmtUTC(l.t) + ' ' + L('broke', '突破') + ' ' + fmtPrice(l.price) + '</span><span>+4h → ' + tag + '</span></div>';
+      }).join('') || '<div class="prow"><span>' + L('breakout events in window', '窗口内的突破事件') + '</span><span>' + L('none', '无') + '</span></div>') +
+      '<div class="prow"><span>' + L('live pair data', '实时交易对数据') + '</span><a href="https://dexscreener.com/' + pair.chainId + '/' + pair.pairAddress + '" target="_blank" rel="noopener">dexscreener ↗</a></div>' +
+      '<div class="prow"><span>' + L('verdict ledger (wrong ones kept)', '判决账本（错的也留着）') + '</span><a href="https://github.com/scarlettzhangxh/exitliq/blob/main/verdicts.jsonl" target="_blank" rel="noopener">' + L('public git log', '公开 git 记录') + ' ↗</a></div>' +
     '</div>' +
     '<div class="actions">' +
-      '<a class="btn primary" id="shareX">SHARE VERDICT ON X</a>' +
-      '<a class="btn ghost" id="mkBtn">MARK IT — VERIFY ME LATER</a>' +
-      '<a class="btn ghost" id="dlR">DOWNLOAD RECEIPT</a>' +
-      '<a class="btn ghost" id="chBtn">THINK IT\'S WRONG? POST THE COUNTER-CASE</a>' +
-      '<a class="btn ghost" id="again">CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT</a></div>';
+      '<a class="btn primary" id="shareX">' + L('SHARE VERDICT ON X', '把判决分享到 X') + '</a>' +
+      '<a class="btn ghost" id="mkBtn">' + L('MARK IT — VERIFY ME LATER', '打个标记 — 回头验证我们') + '</a>' +
+      '<a class="btn ghost" id="dlR">' + L('DOWNLOAD RECEIPT', '下载收据') + '</a>' +
+      '<a class="btn ghost" id="chBtn">' + L('THINK IT\'S WRONG? POST THE COUNTER-CASE', '觉得判错了？发帖打脸') + '</a>' +
+      '<a class="btn ghost" id="again">' + L('CHECK ANOTHER — YOUR CLICK, YOUR RECEIPT', '再查一个 — 你的手指，你的收据') + '</a></div>';
 
   wireCA(card);
   $('shareX').onclick = shareX;
@@ -572,13 +634,14 @@ function render(pair, a) {
     const marks = loadMarks();
     marks.push({ addr: pair.baseToken.address, sym, chain: pair.chainId, sig: a.sig, score: a.score, price: a.price, at: Date.now() });
     saveMarks(marks);
-    $('mkBtn').textContent = 'MARKED — COME BACK AND JUDGE US';
-    setTimeout(() => { const b = $('mkBtn'); if (b) b.textContent = 'MARK IT — VERIFY ME LATER'; }, 1600);
+    $('mkBtn').textContent = L('MARKED — COME BACK AND JUDGE US', '已标记 — 记得回来审判我们');
+    setTimeout(() => { const b = $('mkBtn'); if (b) b.textContent = L('MARK IT — VERIFY ME LATER', '打个标记 — 回头验证我们'); }, 1600);
     renderMarks();
   };
   $('chBtn').onclick = () => {
     const url = location.origin + location.pathname + '?t=' + encodeURIComponent(pair.baseToken.address);
-    const text = 'exitliq.wtf calls $' + sym + ' "' + S.title + '" (' + a.score + '/100).\n\nwrong, because ';
+    const text = L('exitliq.wtf calls $' + sym + ' "' + sigTitle(S) + '" (' + a.score + '/100).\n\nwrong, because ',
+      'exitliq.wtf 判 $' + sym + '「' + sigTitle(S) + '」(' + a.score + '/100)。\n\n我不服，因为 ');
     window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
   };
   $('again').onclick = () => { $('ca').value = ''; $('ca').focus(); card.style.display = 'none'; history.replaceState(null, '', location.pathname); };
@@ -588,7 +651,8 @@ function shareX() {
   const { a, sym } = last;
   const S = SIGNALS[a.sig];
   const url = location.origin + location.pathname + '?t=' + encodeURIComponent($('ca').value.trim());
-  const text = 'i checked $' + sym + ' before aping.\n\nverdict: ' + S.title + '\nstructure ' + a.score + '/100 · you\'d be layer L' + a.layer + ' · sells ' + a.sells24 + '%\n\nwho buys after you?\n';
+  const text = L('i checked $' + sym + ' before aping.\n\nverdict: ' + sigTitle(S) + '\nstructure ' + a.score + '/100 · you\'d be layer L' + a.layer + ' · sells ' + a.sells24 + '%\n\nwho buys after you?\n',
+    '冲之前我查了 $' + sym + '。\n\n判决：' + sigTitle(S) + '\n结构分 ' + a.score + '/100 · 你会是第 ' + a.layer + ' 层买家 · 卖压 ' + a.sells24 + '%\n\n下一个接盘的是谁？\n');
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank');
 }
 
@@ -612,23 +676,23 @@ function downloadReceipt() {
   g.fillStyle = '#f2f0e8'; g.font = grot(40); g.fillText('$' + sym, 56, 178);
   g.fillStyle = '#929890'; g.font = mono(15); g.textAlign = 'right'; g.fillText('checked @ ' + fmtPrice(a.price), 584, 174); g.textAlign = 'left';
   g.fillStyle = main; g.font = grot(44);
-  wrapText(g, S.title, 56, 250, 528, 50);
+  wrapText(g, sigTitle(S), 56, 250, 528, 50);
   // rows
   g.font = mono(16);
-  const rows = [['verdict', S.label], ['structure score', a.score + ' / 100'], ['your buyer layer', 'L' + a.layer], ['sells 24h', a.sells24 + '%'], ['timestamp', ts]];
+  const rows = [[L('verdict', '判决'), S.label], [L('structure score', '结构分'), a.score + ' / 100'], [L('your buyer layer', '买家层位'), 'L' + a.layer], [L('sells 24h', '24h 卖压'), a.sells24 + '%'], [L('timestamp', '时间戳'), ts]];
   let y = 356;
-  rows.forEach(([k, v]) => {
+  rows.forEach(([k, v], ri) => {
     g.fillStyle = '#929890'; g.fillText(k, 56, y);
-    g.fillStyle = k === 'verdict' ? main : '#f2f0e8'; g.textAlign = 'right'; g.fillText(String(v), 584, y); g.textAlign = 'left';
+    g.fillStyle = ri === 0 ? main : '#f2f0e8'; g.textAlign = 'right'; g.fillText(String(v), 584, y); g.textAlign = 'left';
     y += 40;
   });
   // note box
   g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.strokeRect(56, y, 528, 110); g.setLineDash([]);
   g.fillStyle = '#626963'; g.font = mono(13);
-  wrapText(g, 'verdicts are timestamped when issued. we keep the wrong ones too — that is the point.', 74, y + 34, 494, 22);
+  wrapText(g, L('verdicts are timestamped when issued. we keep the wrong ones too — that is the point.', '判决签发即盖时间戳。错的我们也留着——这正是意义所在。'), 74, y + 34, 494, 22);
   // footer
   g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 696); g.lineTo(584, 696); g.stroke(); g.setLineDash([]);
-  g.fillStyle = '#929890'; g.font = mono(14); g.fillText('who buys after you?', 56, 726);
+  g.fillStyle = '#929890'; g.font = mono(14); g.fillText(L('who buys after you?', '下一个接盘的是谁？'), 56, 726);
   g.fillStyle = main; g.textAlign = 'right'; g.fillText('exitliq.wtf', 584, 726); g.textAlign = 'left';
   const aEl = document.createElement('a');
   aEl.download = 'layers-receipt-' + sym + '-' + rid.slice(1) + '.png';
@@ -636,12 +700,17 @@ function downloadReceipt() {
   aEl.click();
 }
 function wrapText(g, text, x, y, maxW, lh) {
-  const words = text.split(' '); let line = '';
-  for (const w of words) {
-    if (g.measureText(line + w).width > maxW && line) { g.fillText(line.trim(), x, y); line = w + ' '; y += lh; }
-    else line += w + ' ';
+  // CJK has no spaces — wrap per character in zh, per word in en
+  const cjk = /[一-鿿]/.test(text);
+  const parts = cjk ? Array.from(text) : text.split(' ');
+  const glue = cjk ? '' : ' ';
+  let line = '';
+  for (const w of parts) {
+    const test = line ? line + glue + w : w;
+    if (g.measureText(test).width > maxW && line) { g.fillText(line, x, y); line = w; y += lh; }
+    else line = test;
   }
-  g.fillText(line.trim(), x, y);
+  g.fillText(line, x, y);
 }
 
 async function check(addr) {
@@ -649,9 +718,9 @@ async function check(addr) {
   if (!addr) return;
   $('card').style.display = 'none';
   try {
-    setStatus('REPLAYING THE TAPE');
+    setStatus(L('REPLAYING THE TAPE', '回放交易记录'));
     const pair = await fetchPair(addr);
-    if (!pair) { setStatus('no pair found — either too fresh, wrong address, or already dead. all three are answers.', true); return; }
+    if (!pair) { setStatus(L('no pair found — either too fresh, wrong address, or already dead. all three are answers.', '找不到交易对——要么太新，要么地址错了，要么已经死了。三种都是答案。'), true); return; }
     const reason = gateReason({
       sym: pair.baseToken.symbol,
       mcap: pair.marketCap || pair.fdv || 0,
@@ -659,16 +728,21 @@ async function check(addr) {
       ageDays: pair.pairCreatedAt ? (Date.now() - pair.pairCreatedAt) / 864e5 : 0,
     });
     if (reason) { clearStatus(); renderOOS(pair, reason); history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr)); return; }
-    setStatus('TESTING THE FLOORS · $' + pair.baseToken.symbol);
+    setStatus(L('TESTING THE FLOORS', '检测地板强度') + ' · $' + pair.baseToken.symbol);
     let candles = [];
-    try { candles = await fetchCandles(pair.chainId, pair.pairAddress); } catch (e) { candles = []; }
-    setStatus('BUILDING THE VERDICT');
+    try { candles = await fetchCandles(pair.chainId, pair.pairAddress); }
+    catch (e) {
+      // a failed tape pull is NOT the same as a young token — refuse to guess
+      setStatus(L('couldn\'t pull the tape (rate-limited?). wait a minute and try again — no tape, no verdict.', '拉不到 K 线数据（可能被限速）。等一分钟再试——没有数据，就没有判决。'), true);
+      return;
+    }
+    setStatus(L('BUILDING THE VERDICT', '生成判决'));
     const a = analyze(pair, candles);
     clearStatus();
     render(pair, a);
     history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr));
   } catch (e) {
-    setStatus('data source hiccup (' + (e.message || e) + '). try again in a few seconds.', true);
+    setStatus(L('data source hiccup (' + (e.message || e) + '). try again in a few seconds.', '数据源打了个嗝（' + (e.message || e) + '）。过几秒再试。'), true);
   }
 }
 
@@ -678,10 +752,11 @@ const loadMarks = () => { try { return JSON.parse(localStorage.getItem(MARKS_KEY
 const saveMarks = (m) => { try { localStorage.setItem(MARKS_KEY, JSON.stringify(m.slice(-50))); } catch (e) {} };
 
 function gradeMark(sig, chg) {
-  if (chg == null) return ['—', 'var(--text-muted)', 'PRICE UNAVAILABLE'];
-  if (sig === 'PVE_MOMENT' || sig === 'PVE_BUILDING') return chg >= 0 ? ['✓', 'var(--state-pve)', 'VERDICT HELD'] : ['✗', 'var(--state-exit)', 'VERDICT MISSED'];
-  if (sig === 'EXIT_LIQ' || sig === 'STRUCT_RISK') return chg <= 0 ? ['✓', 'var(--state-pve)', 'VERDICT HELD'] : ['✗', 'var(--state-exit)', 'VERDICT MISSED'];
-  return ['○', 'var(--text-muted)', 'NO DIRECTIONAL CLAIM'];
+  const HELD = L('VERDICT HELD', '判决兑现'), MISS = L('VERDICT MISSED', '判决打脸');
+  if (chg == null) return ['—', 'var(--text-muted)', L('PRICE UNAVAILABLE', '拿不到现价')];
+  if (sig === 'PVE_MOMENT' || sig === 'PVE_BUILDING') return chg >= 0 ? ['✓', 'var(--state-pve)', HELD] : ['✗', 'var(--state-exit)', MISS];
+  if (sig === 'EXIT_LIQ' || sig === 'STRUCT_RISK') return chg <= 0 ? ['✓', 'var(--state-pve)', HELD] : ['✗', 'var(--state-exit)', MISS];
+  return ['○', 'var(--text-muted)', L('NO DIRECTIONAL CLAIM', '无方向判断')];
 }
 
 async function fetchMarkPrices(addrs) {
@@ -708,7 +783,7 @@ async function renderMarks() {
   if (!marks.length) { sec.style.display = 'none'; return; }
   sec.style.display = 'block';
   const list = $('marksList');
-  list.innerHTML = '<div style="font-size:11px;color:var(--text-secondary);"><span class="blink">▮</span> marking to market…</div>';
+  list.innerHTML = '<div style="font-size:11px;color:var(--text-secondary);"><span class="blink">▮</span> ' + L('marking to market…', '按现价对账中…') + '</div>';
   const prices = await fetchMarkPrices([...new Set(marks.map(m => m.addr))]);
   list.innerHTML = '';
   [...marks].reverse().forEach((m) => {
@@ -723,8 +798,8 @@ async function renderMarks() {
       '<div class="rrow"><div class="rmeta"><span class="rsym">$' + m.sym + '</span><span class="rchain">' + m.chain.toUpperCase() + '</span><span class="rpill">' + S.label + '</span></div>' +
       '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;"><span class="grotesk" style="font-size:15px;font-weight:700;color:' + (chg == null ? 'var(--text-muted)' : chg >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">' + (chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%') + '</span>' +
       '<span class="mkdel" title="delete mark" style="cursor:pointer;color:var(--text-muted);font-size:15px;padding:4px 6px;">×</span></div></div>' +
-      '<div class="rline">marked ' + fmtAge((Date.now() - m.at) / 36e5) + ' ago @ ' + fmtPrice(m.price) + (cur ? ' → now ' + fmtPrice(cur) : '') + '</div>' +
-      '<div class="rline sub">the verdict said ' + S.label + ' · <span style="color:' + g[1] + '">' + g[0] + ' ' + g[2] + '</span></div>';
+      '<div class="rline">' + L('marked ' + fmtAge((Date.now() - m.at) / 36e5) + ' ago @ ' + fmtPrice(m.price), fmtAge((Date.now() - m.at) / 36e5) + ' 前标记 @ ' + fmtPrice(m.price)) + (cur ? L(' → now ', ' → 现在 ') + fmtPrice(cur) : '') + '</div>' +
+      '<div class="rline sub">' + L('the verdict said ', '当时的判决是 ') + S.label + ' · <span style="color:' + g[1] + '">' + g[0] + ' ' + g[2] + '</span></div>';
     el.querySelector('.mkdel').onclick = (e) => { e.stopPropagation(); saveMarks(loadMarks().filter(x => x.at !== m.at)); renderMarks(); };
     el.onclick = () => { $('ca').value = m.addr; check(m.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     list.appendChild(el);
@@ -771,12 +846,13 @@ const pseudoPair = (t) => ({
 function radarLine(a) {
   const now = Date.now() / 1000;
   const lastHeld = [...a.levels].reverse().find(l => l.held);
-  if (a.sig === 'PVE_MOMENT') return 'L' + a.heldAll + ' confirmed ' + (lastHeld ? fmtAge((now - (lastHeld.confT || lastHeld.t)) / 3600) + ' ago' : '') + ' · buys ' + (100 - a.sells24) + '%';
-  if (a.sig === 'PVE_BUILDING') return 'breakout live · confirms in ~' + (a.pending ? a.pending.confirmsIn : '?') + 'h';
-  if (a.sig === 'EXIT_LIQ') return 'layer round-tripped · no new floor since';
-  if (a.sig === 'PVP_CHURN') return 'turnover ' + a.turnover.toFixed(1) + '× mcap · zero levels held';
-  if (a.sig === 'STRUCT_RISK') return (a.heldAll ? 'levels stale' : 'no levels in 41d') + ' · ' + Math.round(a.retention * 100) + '% of 41d high';
-  return a.heldAll + ' level' + (a.heldAll !== 1 ? 's' : '') + ' all-time · nothing fresh either way';
+  const age = lastHeld ? fmtAge((now - (lastHeld.confT || lastHeld.t)) / 3600) : '';
+  if (a.sig === 'PVE_MOMENT') return L('L' + a.heldAll + ' confirmed ' + age + ' ago · buys ' + (100 - a.sells24) + '%', '第 ' + a.heldAll + ' 层于 ' + age + '前确认 · 买盘 ' + (100 - a.sells24) + '%');
+  if (a.sig === 'PVE_BUILDING') return L('breakout live · confirms in ~' + (a.pending ? a.pending.confirmsIn : '?') + 'h', '突破进行中 · 约 ' + (a.pending ? a.pending.confirmsIn : '?') + ' 小时后确认');
+  if (a.sig === 'EXIT_LIQ') return L('layer round-tripped · no new floor since', '买家层被回吐 · 至今没有新地板');
+  if (a.sig === 'PVP_CHURN') return L('turnover ' + a.turnover.toFixed(1) + '× mcap · zero levels held', '换手 ' + a.turnover.toFixed(1) + '× 市值 · 零层站住');
+  if (a.sig === 'STRUCT_RISK') return L((a.heldAll ? 'levels stale' : 'no levels in 41d') + ' · ' + Math.round(a.retention * 100) + '% of 41d high', (a.heldAll ? '层已陈旧' : '41 天无层') + ' · 现价为高点的 ' + Math.round(a.retention * 100) + '%');
+  return L(a.heldAll + ' level' + (a.heldAll !== 1 ? 's' : '') + ' all-time · nothing fresh either way', '历史共 ' + a.heldAll + ' 层 · 双向都无新证据');
 }
 
 function insertRadarCard(t, a, prevSig) {
@@ -807,7 +883,7 @@ function renderReceipts(rs) {
   if (!rs.length) { $('receipts').innerHTML = ''; return; }
   rs.sort((x, y) => y.fwd - x.fwd);
   $('receipts').innerHTML = rs.slice(0, 8).map(r =>
-    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>since layer confirmed ' + r.age + ' ago</span></div>').join('');
+    '<div class="chip" data-addr="' + r.addr + '"><b style="color:' + (r.fwd >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">$' + r.sym + ' ' + (r.fwd >= 0 ? '+' : '') + r.fwd.toFixed(0) + '%</b><span>' + L('since layer confirmed ' + r.age + ' ago', '买家层确认于 ' + r.age + ' 前') + '</span></div>').join('');
   [...$('receipts').children].forEach(c => c.onclick = () => { $('ca').value = c.dataset.addr; check(c.dataset.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
@@ -843,13 +919,13 @@ async function radarScan(force) {
   if (scanning) return;
   const lockAt = +(localStorage.getItem('layers_scanlock') || 0);
   if (!force && Date.now() - lockAt < 150e3) {
-    $('rstatus').innerHTML = 'another exitliq.wtf tab on this device is scanning — this feed updates from its results (one scanner per device keeps the data source happy)';
+    $('rstatus').innerHTML = L('another exitliq.wtf tab on this device is scanning — this feed updates from its results (one scanner per device keeps the data source happy)', '本设备的另一个 exitliq.wtf 标签页正在扫描——结果会同步到这里（一台设备一个扫描器，数据源才不生气）');
     return;
   }
   scanning = true; $('rescan').disabled = true;
   const hadCards = $('rfeed').children.length > 0;
   if (!hadCards) { $('rfeed').innerHTML = ''; $('receipts').innerHTML = ''; }
-  $('rstatus').innerHTML = '<span class="blink">▮</span> pulling trending pools on 4 chains…';
+  $('rstatus').innerHTML = '<span class="blink">▮</span> ' + L('pulling trending pools on 4 chains…', '正在拉取 4 条链的 trending 池…');
   const lists = await Promise.all(RADAR_CHAINS.map(fetchTrending));
   const seen = new Set(); const cands = []; let skippedOOS = 0;
   for (const t of lists.flat()) {
@@ -867,7 +943,7 @@ async function radarScan(force) {
   for (const t of scanList) {
     done++;
     localStorage.setItem('layers_scanlock', String(Date.now()));
-    $('rstatus').innerHTML = '<span class="blink">▮</span> reading structure ' + done + '/' + scanList.length + ' — $' + t.sym + '…';
+    $('rstatus').innerHTML = '<span class="blink">▮</span> ' + L('reading structure ', '读取结构 ') + done + '/' + scanList.length + ' — $' + t.sym + '…';
     try {
       const candles = await fetchCandles(t.chain, t.pool);
       consecFail = 0;
@@ -892,10 +968,10 @@ async function radarScan(force) {
   }
   scanning = false; $('rescan').disabled = false;
   if (aborted) {
-    $('rstatus').innerHTML = '<span class="err">the data source is rate-limiting this device (' + results.length + ' read, ' + unreadable + ' blocked — too many tabs open?). auto-retry in 90s.</span>';
+    $('rstatus').innerHTML = '<span class="err">' + L('the data source is rate-limiting this device (' + results.length + ' read, ' + unreadable + ' blocked — too many tabs open?). auto-retry in 90s.', '数据源正在限速这台设备（读到 ' + results.length + '，被挡 ' + unreadable + '——开了太多标签页？）。90 秒后自动重试。') + '</span>';
     setTimeout(() => radarScan(false), 90e3);
   } else {
-    $('rstatus').innerHTML = 'scan done · ' + results.length + ' readable · ' + tooEarly + ' too fresh · ' + skippedOOS + ' out-of-scope' + (unreadable ? ' · ' + unreadable + ' unreadable' : '') + ' · auto-rescan in 5m';
+    $('rstatus').innerHTML = L('scan done · ' + results.length + ' readable · ' + tooEarly + ' too fresh · ' + skippedOOS + ' out-of-scope' + (unreadable ? ' · ' + unreadable + ' unreadable' : '') + ' · auto-rescan in 5m', '扫描完成 · ' + results.length + ' 可读 · ' + tooEarly + ' 太新 · ' + skippedOOS + ' 域外' + (unreadable ? ' · ' + unreadable + ' 不可读' : '') + ' · 5 分钟后自动重扫');
   }
 }
 // central feed mode: a scheduled scanner commits feed.json next to this page.
@@ -911,7 +987,7 @@ async function tryCentralFeed() {
     if (ageM > 25) return false; // scanner is down — fall back to solo scan
     central = true;
     renderFeedFrom(d.results);
-    $('rstatus').innerHTML = 'central scan · ' + ageM + 'm old · ' + d.results.length + ' readable · your browser makes zero data calls in this mode';
+    $('rstatus').innerHTML = L('central scan · ' + ageM + 'm old · ' + d.results.length + ' readable · your browser makes zero data calls in this mode', '中央扫描 · ' + ageM + ' 分钟前 · ' + d.results.length + ' 可读 · 此模式下你的浏览器零数据请求');
     return true;
   } catch (e) { return false; }
 }
@@ -924,13 +1000,15 @@ setInterval(() => {
 window.addEventListener('storage', (e) => {
   if (e.key === 'layers_feed_v1' && !scanning) {
     const c = feedCacheLoad();
-    if (c) { renderFeedFrom(c.results); $('rstatus').innerHTML = 'feed refreshed by another tab · ' + c.results.length + ' readable'; }
+    if (c) { renderFeedFrom(c.results); $('rstatus').innerHTML = L('feed refreshed by another tab · ' + c.results.length + ' readable', '另一个标签页刷新了雷达 · ' + c.results.length + ' 可读'); }
   }
 });
 
 $('go').onclick = () => check($('ca').value);
 $('ca').addEventListener('keydown', (e) => { if (e.key === 'Enter') check($('ca').value); });
 $('mkRefresh').onclick = renderMarks;
+$('langBtn').onclick = () => setLang(LANG === 'zh' ? 'en' : 'zh');
+applyStatic();
 renderMarks();
 const bootParams = new URLSearchParams(location.search);
 const qp = bootParams.get('t');
@@ -941,7 +1019,7 @@ if (qp) { $('ca').value = qp; check(qp); }
   if (bootCache) {
     renderFeedFrom(bootCache.results);
     const ageM = Math.round((Date.now() - bootCache.at) / 60e3);
-    $('rstatus').innerHTML = 'showing local scan from ' + ageM + 'm ago' + (ageM >= 4 ? ' · rescanning…' : ' · fresh');
+    $('rstatus').innerHTML = L('showing local scan from ' + ageM + 'm ago' + (ageM >= 4 ? ' · rescanning…' : ' · fresh'), '显示 ' + ageM + ' 分钟前的本地扫描' + (ageM >= 4 ? ' · 重扫中…' : ' · 足够新'));
     if (ageM >= 4) radarScan(false);
   } else {
     radarScan(false);
