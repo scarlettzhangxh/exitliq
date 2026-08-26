@@ -47,9 +47,9 @@
   .hero h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 36px; line-height: 1.05; margin: 0 0 10px 0; letter-spacing: -.01em; }
   .hero p { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin: 0; max-width: 46ch; }
   .inrow { display: flex; gap: 8px; margin: 18px 0 8px 0; }
-  #ca { flex: 1; min-width: 0; height: 48px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 13px; padding: 0 14px; outline: none; transition: border-color .14s; }
-  #ca::placeholder { color: var(--text-muted); }
-  #ca:focus { border-color: var(--focus); }
+  #ca, #gAdd { flex: 1; min-width: 0; height: 48px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-primary); font-family: inherit; font-size: 13px; padding: 0 14px; outline: none; transition: border-color .14s; }
+  #ca::placeholder, #gAdd::placeholder { color: var(--text-muted); }
+  #ca:focus, #gAdd:focus { border-color: var(--focus); }
   #go { height: 48px; padding: 0 24px; border: 1px solid var(--state-pve); border-radius: 4px; background: var(--state-pve); color: #07110a; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: .05em; cursor: pointer; transition: filter .14s; }
   #go:hover { filter: brightness(1.07); }
   #go:active { transform: translateY(1px); }
@@ -106,10 +106,10 @@
   /* ---- radar ---- */
   .rhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 36px 0 4px 0; }
   .rhead .secttl { flex: 1; }
-  #rescan, #mkRefresh { position: relative; height: 36px; padding: 0 14px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .08em; white-space: nowrap; transition: border-color .14s, color .14s; }
-  #rescan::after, #mkRefresh::after { content: ''; position: absolute; inset: -5px 0; }
-  #rescan:hover:not(:disabled), #mkRefresh:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
-  #rescan:disabled { opacity: .4; cursor: default; }
+  #rescan, #mkRefresh, #bagRescan, #gdRefresh, #gAddBtn { position: relative; height: 36px; padding: 0 14px; background: var(--surface-raised); border: 1px solid var(--border-default); border-radius: 4px; color: var(--text-secondary); font-family: inherit; font-size: 10px; cursor: pointer; letter-spacing: .08em; white-space: nowrap; transition: border-color .14s, color .14s; }
+  #rescan::after, #mkRefresh::after, #bagRescan::after, #gdRefresh::after { content: ''; position: absolute; inset: -5px 0; }
+  #rescan:hover:not(:disabled), #mkRefresh:hover:not(:disabled), #bagRescan:hover:not(:disabled), #gdRefresh:hover:not(:disabled), #gAddBtn:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
+  #rescan:disabled, #bagRescan:disabled, #gdRefresh:disabled, #gAddBtn:disabled { opacity: .4; cursor: default; }
   .rquip { font-size: 11px; color: var(--text-muted); line-height: 1.7; margin-bottom: 4px; }
   .rchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
   .rchip { position: relative; height: 32px; padding: 0 12px; display: flex; align-items: center; border-radius: 4px; font-size: 10px; cursor: pointer; background: var(--surface-raised); border: 1px solid var(--border-default); color: var(--text-secondary); letter-spacing: .08em; transition: border-color .14s, color .14s; }
@@ -178,9 +178,40 @@
     <button id="go">CHECK</button>
   </div>
   <div class="hint" id="hintLine">public trade data only. nothing signed, nothing stored, not advice.</div>
+  <div style="display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap;">
+    <button id="wConnect" class="cabtn"></button>
+    <div class="hint" id="bagCta" style="cursor: pointer; color: var(--data-link); margin: 0;"></div>
+  </div>
 
   <div id="status"></div>
   <div id="card" class="marks"></div>
+
+  <div id="bagSec" style="display: none;">
+    <div class="rhead">
+      <div class="secttl" style="margin: 0;" id="bagTitle"></div>
+      <button id="bagRescan"></button>
+    </div>
+    <div class="rquip" id="bagQuip"></div>
+    <div id="bagSummary" style="margin-bottom: 10px;"></div>
+    <div id="bagList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    <div class="hint" id="bagFoot" style="margin-top: 10px; line-height: 1.8;"></div>
+    <div class="actions" id="bagActions" style="margin-top: 14px;"></div>
+  </div>
+
+  <div id="guardSec" style="display: none;">
+    <div class="rhead">
+      <div class="secttl" style="margin: 0;" id="guardTitle"></div>
+      <button id="gdRefresh"></button>
+    </div>
+    <div class="rquip" id="guardQuip"></div>
+    <div id="guardAlerts" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    <div id="guardList" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
+    <div class="inrow" style="margin: 12px 0 0 0;">
+      <input id="gAdd" autocomplete="off" spellcheck="false">
+      <button id="gAddBtn" style="height: 48px;"></button>
+    </div>
+    <div class="hint" id="guardFoot" style="margin-top: 7px;"></div>
+  </div>
 
   <div id="marksSec" style="display: none;">
     <div class="rhead">
@@ -271,6 +302,8 @@ function applyStatic() {
     '<b>可证伪协议。</b>阈值是先验值，不是曲线拟合，正在用前向收益分桶公开校准。每份判决都提交进公开 git 账本，时间戳防篡改——错的也保留：<a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>。如果 favorable 桶跑不赢 risk 桶，这个产品就该死。就这么定。');
   $('footLine').innerHTML = L('exitliq.wtf reads structure, not fortunes. we never block a trade — your click, your receipt.<br>data: dexscreener + geckoterminal public APIs · no keys, no backend, no tracking.',
     'exitliq.wtf 读的是结构，不是命运。我们从不拦截交易——你的手指，你的收据。<br>数据：dexscreener + geckoterminal 公开 API · 无密钥、无后端、无跟踪。');
+  $('bagCta').textContent = L('▸ or paste a SOL wallet address — every holding gets a verdict', '▸ 或者直接贴一个 SOL 钱包地址 — 每个仓位一份判决');
+  applyWalletBtn();
 }
 function setLang(l) {
   LANG = l;
@@ -278,6 +311,8 @@ function setLang(l) {
   applyStatic();
   if (last) render(last.pair, last.a);
   renderMarks();
+  if (lastBag && $('bagSec').style.display !== 'none') renderBagAll(lastBag);
+  renderGuardian();
   if (central) { tryCentralFeed(); }
   else { const c = feedCacheLoad(); if (c && $('rfeed').children.length) renderFeedFrom(c.results); }
 }
@@ -294,6 +329,7 @@ const SIGNALS = {
   EXIT_LIQ:     { label: 'EXIT LIQ',       title: "YOU FOUND THE BUYERS. IT'S YOU.", tzh: '接盘的人找到了。是你。', tone: 'exit' },
   TOO_EARLY:    { label: 'TOO EARLY',      title: 'NO STRUCTURE YET.', tzh: '还没有结构可读。', tone: 'neutral' },
   OOS:          { label: 'OUT OF SCOPE',   title: 'NOT A TRENCH ASSET.', tzh: '这不是战壕资产。', tone: 'neutral' },
+  DEAD:         { label: 'PAIR GONE',      title: 'THE MARKET LEFT FIRST.', tzh: '市场先走一步了。', tone: 'exit' },
 };
 for (const k in SIGNALS) SIGNALS[k].color = TONE[SIGNALS[k].tone];
 const sigTitle = (S) => L(S.title, S.tzh);
@@ -622,6 +658,8 @@ function render(pair, a) {
     '</div>' +
     '<div class="actions">' +
       '<a class="btn primary" id="shareX">' + L('SHARE VERDICT ON X', '把判决分享到 X') + '</a>' +
+      '<a class="btn ghost" id="gdBtn">' + L('GUARD THIS BAG — WATCH THE FLOOR', '守护这个仓 — 盯住地板') + '</a>' +
+      (tradeURL(pair.chainId, pair.baseToken.address) ? '<a class="btn ghost" href="' + tradeURL(pair.chainId, pair.baseToken.address) + '" target="_blank" rel="noopener">' + L('TRADE IT ON GMGN ↗ — YOUR CLICK, YOUR RECEIPT', '去 GMGN 交易 ↗ — 你的手指，你的收据') + '</a>' : '') +
       '<a class="btn ghost" id="mkBtn">' + L('MARK IT — VERIFY ME LATER', '打个标记 — 回头验证我们') + '</a>' +
       '<a class="btn ghost" id="dlR">' + L('DOWNLOAD RECEIPT', '下载收据') + '</a>' +
       '<a class="btn ghost" id="chBtn">' + L('THINK IT\'S WRONG? POST THE COUNTER-CASE', '觉得判错了？发帖打脸') + '</a>' +
@@ -630,6 +668,11 @@ function render(pair, a) {
   wireCA(card);
   $('shareX').onclick = shareX;
   $('dlR').onclick = downloadReceipt;
+  $('gdBtn').onclick = () => {
+    guardUpsert([{ pair, sym, a, value: null, ui: null }], null);
+    $('gdBtn').textContent = L('GUARDED — WE RE-CHECK EVERY VISIT', '已守护 — 每次回来都会重查');
+    renderGuardian();
+  };
   $('mkBtn').onclick = () => {
     const marks = loadMarks();
     marks.push({ addr: pair.baseToken.address, sym, chain: pair.chainId, sig: a.sig, score: a.score, price: a.price, at: Date.now() });
@@ -720,7 +763,21 @@ async function check(addr) {
   try {
     setStatus(L('REPLAYING THE TAPE', '回放交易记录'));
     const pair = await fetchPair(addr);
-    if (!pair) { setStatus(L('no pair found — either too fresh, wrong address, or already dead. all three are answers.', '找不到交易对——要么太新，要么地址错了，要么已经死了。三种都是答案。'), true); return; }
+    if (!pair) {
+      // no market for this address — maybe it's not a token at all but a wallet.
+      // one cheap RPC call decides: system-owned (or unfunded) = wallet → bag scan.
+      if (BASE58_RE.test(addr)) {
+        try {
+          const info = await solRpc('getAccountInfo', [addr, { encoding: 'base64' }]);
+          const owner = (((info || {}).value) || {}).owner || null;
+          if (!owner || owner === SYSTEM_PROGRAM) {
+            setStatus(L('no pair — but this looks like a wallet. running the bag scan…', '找不到交易对——但这看起来是个钱包地址。开始持仓体检…'));
+            return bagScan(addr);
+          }
+        } catch (e) {}
+      }
+      setStatus(L('no pair found — either too fresh, wrong address, or already dead. all three are answers.', '找不到交易对——要么太新，要么地址错了，要么已经死了。三种都是答案。'), true); return;
+    }
     const reason = gateReason({
       sym: pair.baseToken.symbol,
       mcap: pair.marketCap || pair.fdv || 0,
@@ -744,6 +801,513 @@ async function check(addr) {
   } catch (e) {
     setStatus(L('data source hiccup (' + (e.message || e) + '). try again in a few seconds.', '数据源打了个嗝（' + (e.message || e) + '）。过几秒再试。'), true);
   }
+}
+
+// ================= BAG SCAN + GUARDIAN (stage A: pure client, zero keys) =================
+// paste a SOL wallet → every holding gets the same verdict a stranger would get.
+// guard = localStorage watchlist re-run on every visit; transitions get flagged.
+// the wallet address goes to public RPC + dexscreener only — never to us (there is no us).
+// endpoint reality check (verified 2026-08): only the official RPC serves the
+// account-index methods (getTokenAccountsByOwner) without a key. publicnode blocks
+// them ("indexed requests require a personal token") but happily serves the light
+// ones — so it's the fallback for light methods only. official gets one 8s retry on 429.
+const SOL_RPC_MAIN = 'https://api.mainnet-beta.solana.com';
+const SOL_RPC_LIGHT_FALLBACK = 'https://solana-rpc.publicnode.com';
+const INDEXED_METHODS = new Set(['getTokenAccountsByOwner', 'getTokenLargestAccounts', 'getProgramAccounts']);
+const TOKEN_PROGRAMS = ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'];
+const SYSTEM_PROGRAM = '11111111111111111111111111111111';
+const BASE58_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const WSOL = 'So11111111111111111111111111111111111111112';
+const DUST_USD = 10, BAG_CAP = 12;
+// holder-goodness scale (NOT the radar sort order): floorless = GOOD ≤ 1
+const GOOD = { PVE_MOMENT: 5, PVE_BUILDING: 4, NEUTRAL: 3, TOO_EARLY: 3, OOS: 3, PVP_CHURN: 2, STRUCT_RISK: 1, EXIT_LIQ: 0, DEAD: 0 };
+
+async function solRpcOnce(ep, method, params) {
+  const r = await fetch(ep, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+  if (!r.ok) throw new Error('rpc ' + r.status);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message || 'rpc error');
+  return d.result;
+}
+async function solRpc(method, params) {
+  try { return await solRpcOnce(SOL_RPC_MAIN, method, params); }
+  catch (e) {
+    if (INDEXED_METHODS.has(method)) {
+      if (!/rpc 429/.test(e.message || '')) throw e; // 403 = blocked outright, retrying won't help
+      await sleep(8000);
+      return solRpcOnce(SOL_RPC_MAIN, method, params);
+    }
+    return solRpcOnce(SOL_RPC_LIGHT_FALLBACK, method, params);
+  }
+}
+
+// holdings: Jupiter's keyless lite-api first — CORS-open and built for browser dapps.
+// verified 2026-08: the official RPC 403s ALL browser origins, and every keyless RPC
+// gates the account-index methods, so for a zero-key static page Jupiter IS the path.
+// (bonus: the response carries native SOL, saving a getBalance call.)
+// raw RPC stays as fallback for non-browser contexts / if the blocking ever lifts.
+async function fetchWalletTokens(wallet) {
+  try {
+    const r = await fetch('https://lite-api.jup.ag/ultra/v1/holdings/' + encodeURIComponent(wallet));
+    if (r.ok) {
+      const d = await r.json();
+      const toks = d.tokens || {};
+      const mints = [];
+      for (const mint in toks) {
+        let ui = 0, dec = null;
+        for (const acc of (toks[mint] || [])) { ui += (+acc.uiAmount || 0); if (dec == null) dec = +acc.decimals; }
+        if (ui > 0 && dec !== 0) mints.push({ mint, ui }); // 0-decimal = NFTs and spam, not bags
+      }
+      return { mints, sol: +d.uiAmount || 0 };
+    }
+  } catch (e) {}
+  const merged = {};
+  for (const pid of TOKEN_PROGRAMS) {
+    const res = await solRpc('getTokenAccountsByOwner', [wallet, { programId: pid }, { encoding: 'jsonParsed', commitment: 'confirmed' }]);
+    for (const v of ((res || {}).value || [])) {
+      const info = ((((v.account || {}).data || {}).parsed || {}).info) || {};
+      const ta = info.tokenAmount || {};
+      if (!info.mint || !(+ta.uiAmount > 0)) continue;
+      if (+ta.decimals === 0) continue;
+      merged[info.mint] = (merged[info.mint] || 0) + (+ta.uiAmount);
+    }
+  }
+  let lamports = 0;
+  try { lamports = ((await solRpc('getBalance', [wallet])) || {}).value || 0; } catch (e) {}
+  return { mints: Object.keys(merged).map(m => ({ mint: m, ui: merged[m] })), sol: lamports / 1e9 };
+}
+
+// best (deepest-liquidity) pair per token. batch responses cap at ~30 pairs, so
+// gap-fill the crowded-out ones individually — bounded, spam wallets hold hundreds.
+async function fetchBestPairs(addrs, gapLimit) {
+  const want = new Set(addrs.map(a => a.toLowerCase()));
+  const out = {};
+  const ingest = (ps) => {
+    for (const p of (ps || [])) {
+      if (!p.baseToken || !p.baseToken.address) continue;
+      const k = p.baseToken.address.toLowerCase();
+      if (!want.has(k)) continue;
+      const liq = ((p.liquidity || {}).usd) || 0;
+      if (!out[k] || liq > (((out[k].liquidity || {}).usd) || 0)) out[k] = p;
+    }
+  };
+  for (let i = 0; i < addrs.length; i += 25) {
+    try {
+      const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + addrs.slice(i, i + 25).join(','));
+      if (r.ok) ingest(((await r.json()) || {}).pairs);
+    } catch (e) {}
+  }
+  let gaps = 0;
+  for (const a of addrs) {
+    if (out[a.toLowerCase()]) continue;
+    if (++gaps > (gapLimit || 60)) break;
+    try {
+      const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + encodeURIComponent(a));
+      if (r.ok) ingest(((await r.json()) || {}).pairs);
+    } catch (e) {}
+    await sleep(120);
+  }
+  return out;
+}
+
+let lastBag = null;
+
+// ---- connect wallet: READ-ONLY. connect() hands us the public key and nothing else —
+// we never request a signature, so "nothing signed" stays true. paste remains first-class.
+const WALLET_KEY = 'exitliq_wallet_v1';
+function solProvider() {
+  const w = window;
+  return (w.phantom && w.phantom.solana) || w.solana || w.solflare || null;
+}
+function savedWallet() { try { return localStorage.getItem(WALLET_KEY); } catch (e) { return null; } }
+function applyWalletBtn() {
+  const btn = $('wConnect'); if (!btn) return;
+  const pk = savedWallet();
+  btn.textContent = pk
+    ? '◉ ' + shortCA(pk) + ' — ' + L('RESCAN MY BAGS', '重新体检')
+    : L('CONNECT WALLET · READ-ONLY', '连接钱包 · 只读不签名');
+}
+async function connectWallet() {
+  const btn = $('wConnect');
+  const p = solProvider();
+  if (!p) {
+    btn.classList.add('warn');
+    btn.textContent = L('NO WALLET EXTENSION — PASTING AN ADDRESS WORKS THE SAME', '没检测到钱包插件 — 直接贴地址，一样用');
+    setTimeout(() => { btn.classList.remove('warn'); applyWalletBtn(); }, 3000);
+    return;
+  }
+  try {
+    btn.textContent = '…';
+    const res = await p.connect();
+    const pk = ((res && res.publicKey) ? res.publicKey : p.publicKey).toString();
+    try { localStorage.setItem(WALLET_KEY, pk); } catch (e) {}
+    applyWalletBtn();
+    bagScan(pk);
+  } catch (e) { applyWalletBtn(); } // user closed the popup — no drama, no retry-nagging
+}
+
+// trade deep links: we don't execute trades (stage C decides if we ever do) — we route
+// to the terminal degens already trust and take the referral leg. drop a ref code in
+// GMGN_REF to start earning fee share from day one (gmgn.ai/{chain}/token/{ref}_{addr}).
+const GMGN_SLUG = { solana: 'sol', bsc: 'bsc', base: 'base', ethereum: 'eth' };
+const GMGN_REF = '';
+function tradeURL(chainId, addr) {
+  const slug = GMGN_SLUG[chainId];
+  return slug ? 'https://gmgn.ai/' + slug + '/token/' + (GMGN_REF ? GMGN_REF + '_' : '') + addr : null;
+}
+
+function fmtQty(n) { if (n == null) return '—'; if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return n >= 1 ? n.toFixed(1) : n.toPrecision(2); }
+// the two numbers in the headline verdict must not round into each other ("$2K of $2K = 86%")
+function fmtUsdFull(n) { return '$' + Math.round(n || 0).toLocaleString('en-US'); }
+
+function bagVerdictMeta(pct) {
+  if (pct >= 60) return { tone: 'exit', big: L('YOU ARE THE EXIT LIQUIDITY.', '你就是那个出口。') };
+  if (pct >= 30) return { tone: 'pvp', big: L("PART OF YOUR STACK IS SOMEONE'S EXIT.", '你有一部分仓位，是别人的出口。') };
+  return { tone: 'pve', big: L('MOSTLY STANDING ON REAL FLOORS.', '大部分仓位站在真实的地板上。') };
+}
+
+function bagRowHTML(r) {
+  const S = SIGNALS[r.a.sig];
+  return '<div class="rrow"><div class="rmeta"><span class="rsym">$' + r.sym + '</span><span class="rchain">' + r.pair.chainId.toUpperCase() + '</span></div>' +
+    '<span class="grotesk" style="font-size:16px;font-weight:700;flex-shrink:0;">' + fmtUsd(r.value) + '</span></div>' +
+    '<div class="rrow"><div class="rmeta"><span class="rpill">' + S.label + '</span><span class="rscore">' + r.a.score + '</span></div>' +
+    '<span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">L' + r.a.layer + '</span></div>' +
+    '<div class="rbot"><div style="min-width:0;"><div class="rline">' + radarLine(r.a) + '</div>' +
+    '<div class="rline sub">' + fmtQty(r.ui) + ' @ ' + fmtPrice(r.price) + ' · mcap ' + fmtUsd(r.a.mcap) + '</div></div>' +
+    '<div class="ministair">' + stairSVG(r.a.levels, r.a.pending, S.color, true) + '</div></div>';
+}
+
+function insertBagRow(r) {
+  const S = SIGNALS[r.a.sig];
+  const el = document.createElement('div');
+  el.className = 'rcard';
+  el.dataset.rank = GOOD[r.a.sig] != null ? GOOD[r.a.sig] : 3;
+  el.dataset.value = r.value;
+  el.style.setProperty('--sig', S.color);
+  el.innerHTML = bagRowHTML(r);
+  el.onclick = () => { const addr = r.pair.baseToken.address; $('ca').value = addr; check(addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const list = $('bagList');
+  const at = [...list.children].find(k => +k.dataset.rank > +el.dataset.rank || (+k.dataset.rank === +el.dataset.rank && +k.dataset.value < r.value));
+  list.insertBefore(el, at || null);
+}
+
+function renderBagFoot(B) {
+  const bits = [];
+  if (B.sol > 0) bits.push(L('◦ SOL ' + B.sol.toFixed(2) + (B.solUsd ? ' (' + fmtUsd(B.solUsd) + ')' : '') + ' — excluded: major, not a trench asset', '◦ SOL ' + B.sol.toFixed(2) + (B.solUsd ? '（' + fmtUsd(B.solUsd) + '）' : '') + ' — 不判：主流币，不是战壕资产'));
+  if (B.gated.length) bits.push(L('◦ ' + B.gated.length + ' majors/stables (' + fmtUsd(B.gated.reduce((s, r) => s + r.value, 0)) + ') — out of scope', '◦ ' + B.gated.length + ' 个主流/稳定币（' + fmtUsd(B.gated.reduce((s, r) => s + r.value, 0)) + '）— 域外'));
+  if (B.overCap.length) bits.push(L('◦ ' + B.overCap.length + ' smaller bags skipped this pass (top ' + BAG_CAP + ' by value analyzed)', '◦ ' + B.overCap.length + ' 个较小仓位本轮跳过（只判价值前 ' + BAG_CAP + ' 名）'));
+  if (B.dust.length) bits.push(L('◦ ' + B.dust.length + ' dust bags under $' + DUST_USD + ' — we let the dead rest', '◦ ' + B.dust.length + ' 个低于 $' + DUST_USD + ' 的尘埃仓 — 让死者安息'));
+  if (B.noMarket.length) bits.push(L('◦ ' + B.noMarket.length + ' with no live market (or past the pricing cap) — unpriceable', '◦ ' + B.noMarket.length + ' 个没有活跃市场（或超出定价上限）— 无法定价'));
+  bits.push(L('◦ privacy: your wallet went to public RPC + dexscreener only. we have no server to send it to.', '◦ 隐私：你的钱包地址只发给了公共 RPC 和 dexscreener。我们没有服务器，想收也收不了。'));
+  $('bagFoot').innerHTML = bits.join('<br>');
+}
+
+function renderBagActions(B) {
+  if (!B.analyzed.length) { $('bagActions').innerHTML = ''; return; }
+  $('bagActions').innerHTML =
+    '<a class="btn primary" id="bagGuard">' + L('GUARD THESE BAGS — WATCH THE FLOORS', '守护这些仓位 — 盯住地板') + '</a>' +
+    '<a class="btn ghost" id="bagShare">' + L('CONFESS ON X — NO WALLET IN THE POST', '去 X 上忏悔 — 帖子里不带钱包地址') + '</a>' +
+    '<a class="btn ghost" id="bagDl">' + L('DOWNLOAD BAG RECEIPT', '下载持仓收据') + '</a>';
+  $('bagGuard').onclick = () => {
+    guardUpsert(B.analyzed, B.wallet);
+    $('bagGuard').textContent = L("GUARDED — WE RE-CHECK EVERY TIME YOU'RE BACK", '已守护 — 你每次回来我们都重查一遍');
+    renderGuardian();
+    $('guardSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  $('bagShare').onclick = () => shareBag(B);
+  $('bagDl').onclick = () => bagReceipt(B);
+}
+
+function renderBagSummary(B) {
+  const anal = B.analyzed;
+  if (!anal.length) {
+    $('bagSummary').innerHTML = '<div class="rcard" style="cursor:default;--sig:var(--state-neutral)"><div class="rline">' +
+      L('nothing readable in the trenches — bags are all majors, dust, or dead markets. details below.', '战壕里没有可判的仓位——不是主流币就是尘埃或死盘。明细见下。') + '</div></div>';
+    renderBagFoot(B); renderBagActions(B); return;
+  }
+  const tot = anal.reduce((s, r) => s + r.value, 0);
+  // floorless = no confirmed layer under the holder: EXIT_LIQ, DEAD, STRUCT_RISK — and
+  // PVP_CHURN too (it only fires when zero levels EVER held; musical chairs have no floor)
+  const floor = anal.filter(r => (GOOD[r.a.sig] != null ? GOOD[r.a.sig] : 3) <= 2).reduce((s, r) => s + r.value, 0);
+  const pct = tot > 0 ? Math.round(floor / tot * 100) : 0;
+  const worst = [...anal].sort((x, y) => ((GOOD[x.a.sig] != null ? GOOD[x.a.sig] : 3) - (GOOD[y.a.sig] != null ? GOOD[y.a.sig] : 3)) || (y.value - x.value))[0];
+  B.pct = pct; B.tot = tot; B.floorV = floor; B.worst = worst;
+  const M = bagVerdictMeta(pct);
+  $('bagSummary').innerHTML =
+    '<div class="rcard" style="cursor:default;--sig:' + TONE[M.tone] + ';border-left-width:2px;">' +
+    '<div class="rrow"><span style="font-size:10px;letter-spacing:.12em;color:var(--text-secondary);">' + L('BAG VERDICT', '持仓总判决') + '</span>' +
+    '<span style="font-size:10px;color:var(--text-muted);">' + anal.length + L(' bags analyzed', ' 个仓位已判') + '</span></div>' +
+    '<div class="grotesk" style="font-size:44px;font-weight:700;line-height:1.05;color:' + TONE[M.tone] + ';">' + pct + '%</div>' +
+    '<div class="vwhy" style="margin:6px 0 0 0;">' + L('of your ' + fmtUsdFull(tot) + ' in the trenches sits on floorless structure (' + fmtUsdFull(floor) + ').', '你战壕里的 ' + fmtUsdFull(tot) + ' 持仓中，有 ' + fmtUsdFull(floor) + ' 坐在没有地板的结构上。') + '</div>' +
+    '<div class="grotesk" style="font-size:20px;font-weight:700;margin-top:8px;color:' + TONE[M.tone] + ';">' + M.big + '</div></div>';
+  renderBagFoot(B); renderBagActions(B);
+}
+
+function renderBagAll(B) {
+  $('bagSec').style.display = 'block';
+  $('bagTitle').textContent = L('BAG REPORT — ', '持仓体检 — ') + shortCA(B.wallet);
+  $('bagRescan').textContent = L('RESCAN BAGS', '重扫持仓');
+  $('bagQuip').textContent = L('every bag gets the same verdict a stranger would get. your wallet never leaves this browser.', '每个仓位接受与陌生人同款的判决。你的钱包地址不会离开这个浏览器。');
+  $('bagList').innerHTML = '';
+  for (const r of B.analyzed) insertBagRow(r);
+  renderBagSummary(B);
+}
+
+function shareBag(B) {
+  const pct = B.pct || 0;
+  const worst = B.worst;
+  const text = L(
+    'i scanned my bags on exitliq.wtf\n\n' + pct + '% of my trench stack (' + fmtUsd(B.floorV || 0) + ') is sitting on floorless structure.\n' + (worst ? 'worst bag: $' + worst.sym + ' — ' + SIGNALS[worst.a.sig].label + '\n' : '') + '\nam i exit liq? ' + (pct >= 60 ? 'yes. yes i am.' : pct >= 30 ? "partially. it's complicated." : 'not today.') + '\n',
+    '我在 exitliq.wtf 给自己的持仓做了个体检\n\n' + pct + '% 的战壕仓位（' + fmtUsd(B.floorV || 0) + '）坐在没有地板的结构上。\n' + (worst ? '最惨的仓：$' + worst.sym + ' — ' + SIGNALS[worst.a.sig].label + '\n' : '') + '\n我是不是 exit liq？' + (pct >= 60 ? '是。我就是。' : pct >= 30 ? '一半是。很复杂。' : '今天不是。') + '\n');
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(location.origin + location.pathname), '_blank');
+}
+
+function bagReceipt(B) {
+  const M = bagVerdictMeta(B.pct || 0);
+  const main = TONE_HEX[M.tone];
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = 760;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#070908'; g.fillRect(0, 0, 640, 760);
+  g.strokeStyle = '#282e2a'; g.lineWidth = 2; g.strokeRect(24, 24, 592, 712);
+  const mono = (s) => s + 'px "IBM Plex Mono", monospace';
+  const grot = (s) => '700 ' + s + 'px "Space Grotesk", sans-serif';
+  g.strokeStyle = main; g.lineWidth = 3; g.beginPath();
+  g.moveTo(56, 84); g.lineTo(76, 84); g.lineTo(76, 72); g.lineTo(96, 72); g.lineTo(96, 60); g.lineTo(116, 60); g.stroke();
+  g.fillStyle = '#f2f0e8'; g.font = grot(22); g.fillText(L('BAG RECEIPT', '持仓收据'), 132, 84);
+  g.fillStyle = '#929890'; g.font = mono(15); g.textAlign = 'right'; g.fillText(shortCA(B.wallet), 584, 82); g.textAlign = 'left';
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 112); g.lineTo(584, 112); g.stroke(); g.setLineDash([]);
+  g.fillStyle = main; g.font = grot(72); g.fillText((B.pct || 0) + '%', 56, 198);
+  g.fillStyle = '#f2f0e8'; g.font = mono(15);
+  wrapText(g, L('of this stack sits on floorless structure — ' + fmtUsdFull(B.floorV) + ' of ' + fmtUsdFull(B.tot), '的仓位坐在没有地板的结构上 — ' + fmtUsdFull(B.floorV) + ' / ' + fmtUsdFull(B.tot)), 56, 230, 528, 24);
+  g.fillStyle = main; g.font = grot(30);
+  wrapText(g, M.big, 56, 300, 528, 38);
+  g.font = mono(16);
+  let y = 376;
+  [...B.analyzed].sort((x, yy) => ((GOOD[x.a.sig] != null ? GOOD[x.a.sig] : 3) - (GOOD[yy.a.sig] != null ? GOOD[yy.a.sig] : 3)) || (yy.value - x.value)).slice(0, 6).forEach((r) => {
+    g.fillStyle = '#929890'; g.fillText('$' + r.sym + '  ' + fmtUsd(r.value), 56, y);
+    g.fillStyle = TONE_HEX[SIGNALS[r.a.sig].tone] || TONE_HEX.neutral; g.textAlign = 'right'; g.fillText(SIGNALS[r.a.sig].label, 584, y); g.textAlign = 'left';
+    y += 36;
+  });
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.strokeRect(56, y + 6, 528, 78); g.setLineDash([]);
+  g.fillStyle = '#626963'; g.font = mono(13);
+  wrapText(g, L('scanned in the browser against public data. the wallet was never uploaded anywhere.', '在浏览器里对着公开数据完成扫描。钱包地址从未上传到任何地方。'), 74, y + 36, 494, 22);
+  g.strokeStyle = '#282e2a'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(56, 696); g.lineTo(584, 696); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#929890'; g.font = mono(14); g.fillText(L('who buys after you?', '下一个接盘的是谁？'), 56, 726);
+  g.fillStyle = main; g.textAlign = 'right'; g.fillText('exitliq.wtf', 584, 726); g.textAlign = 'left';
+  const aEl = document.createElement('a');
+  aEl.download = 'bag-receipt-' + (B.wallet || '').slice(0, 6) + '.png';
+  aEl.href = cv.toDataURL('image/png');
+  aEl.click();
+}
+
+async function bagScan(wallet) {
+  wallet = (wallet || '').trim();
+  if (!BASE58_RE.test(wallet)) { setStatus(L('that does not look like a SOL wallet address.', '这看起来不像一个 SOL 钱包地址。'), true); return; }
+  $('card').style.display = 'none';
+  const sec = $('bagSec'); sec.style.display = 'block';
+  $('bagList').innerHTML = ''; $('bagSummary').innerHTML = ''; $('bagActions').innerHTML = ''; $('bagFoot').innerHTML = '';
+  $('bagTitle').textContent = L('BAG REPORT — ', '持仓体检 — ') + shortCA(wallet);
+  $('bagRescan').textContent = L('RESCAN BAGS', '重扫持仓');
+  $('bagQuip').textContent = L('every bag gets the same verdict a stranger would get. your wallet never leaves this browser.', '每个仓位接受与陌生人同款的判决。你的钱包地址不会离开这个浏览器。');
+  try {
+    setStatus(L('PULLING YOUR BAGS FROM THE CHAIN', '正在从链上拉取你的持仓'));
+    const { mints, sol } = await fetchWalletTokens(wallet);
+    if (!mints.length && !(sol > 0)) {
+      clearStatus();
+      lastBag = { wallet, sol: 0, gated: [], dust: [], noMarket: [], overCap: [], analyzed: [], at: Date.now() };
+      $('bagSummary').innerHTML = '<div class="rcard" style="cursor:default;--sig:var(--state-neutral)"><div class="rline">' +
+        L('no bags at this address. fresh wallet, cold wallet, or you already sold everything — respect either way.', '这个地址上没有仓位。要么是新钱包，要么是冷钱包，要么你已经清仓了——不管哪种，敬佩。') + '</div></div>';
+      renderBagFoot(lastBag);
+      history.replaceState(null, '', location.pathname + '?w=' + encodeURIComponent(wallet));
+      return;
+    }
+    setStatus(L('PRICING ' + mints.length + ' BAGS', '正在为 ' + mints.length + ' 个仓位定价'));
+    const uniq = [...new Set([WSOL].concat(mints.map(m => m.mint)))];
+    const pairs = await fetchBestPairs(uniq, 40);
+    const solUsd = sol * (+(((pairs[WSOL.toLowerCase()] || {}).priceUsd)) || 0);
+    const rows = mints.filter(m => m.mint !== WSOL).map(m => {
+      const p = pairs[m.mint.toLowerCase()] || null;
+      const price = p ? (+p.priceUsd || 0) : 0;
+      return { mint: m.mint, ui: m.ui, pair: p, price, value: m.ui * price, sym: p ? p.baseToken.symbol.replace(/^\$+/, '') : shortCA(m.mint) };
+    });
+    const noMarket = rows.filter(r => !r.pair || !(r.price > 0));
+    const priced = rows.filter(r => r.pair && r.price > 0);
+    const dust = priced.filter(r => r.value < DUST_USD);
+    const real = priced.filter(r => r.value >= DUST_USD).sort((a, b) => b.value - a.value);
+    const gated = [], trench = [];
+    for (const r of real) {
+      const reason = gateReason({ sym: r.sym, mcap: r.pair.marketCap || r.pair.fdv || 0, vol24: ((r.pair.volume || {}).h24) || 0, ageDays: r.pair.pairCreatedAt ? (Date.now() - r.pair.pairCreatedAt) / 864e5 : 0 });
+      (reason ? gated : trench).push(r);
+    }
+    const toScan = trench.slice(0, BAG_CAP), overCap = trench.slice(BAG_CAP);
+    const analyzed = [];
+    let done = 0;
+    for (const r of toScan) {
+      done++;
+      setStatus(L('TESTING FLOOR ', '检测地板 ') + done + '/' + toScan.length + ' — $' + r.sym);
+      try {
+        const candles = await fetchCandles(r.pair.chainId, r.pair.pairAddress);
+        r.a = analyze(r.pair, candles);
+        analyzed.push(r);
+        insertBagRow(r);
+      } catch (e) {}
+      await sleep(2200);
+    }
+    clearStatus();
+    lastBag = { wallet, sol, solUsd, gated, dust, noMarket, overCap, analyzed, at: Date.now() };
+    renderBagSummary(lastBag);
+    history.replaceState(null, '', location.pathname + '?w=' + encodeURIComponent(wallet));
+  } catch (e) {
+    setStatus(L('couldn\'t read the wallet (' + (e.message || e) + '). public RPCs get moody — try again in a minute.', '读不到这个钱包（' + (e.message || e) + '）。公共 RPC 偶尔闹脾气——一分钟后再试。'), true);
+  }
+}
+
+// ---- the guardian: localStorage watchlist, re-run on every visit ----
+const GUARD_KEY = 'exitliq_guard_v1';
+const loadGuard = () => { try { return JSON.parse(localStorage.getItem(GUARD_KEY) || 'null') || { wallet: null, at: 0, items: {} }; } catch (e) { return { wallet: null, at: 0, items: {} }; } };
+const saveGuard = (g) => { try { const ks = Object.keys(g.items); if (ks.length > 30) for (const k of ks.slice(0, ks.length - 30)) delete g.items[k]; localStorage.setItem(GUARD_KEY, JSON.stringify(g)); } catch (e) {} };
+let guardChanges = [];
+let guarding = false;
+
+function guardUpsert(rows, wallet) {
+  const g = loadGuard();
+  if (wallet) g.wallet = wallet;
+  const now = Date.now();
+  for (const r of rows) {
+    if (!r || !r.a || !r.pair) continue;
+    const key = r.pair.chainId + ':' + r.pair.baseToken.address;
+    const old = g.items[key] || {};
+    g.items[key] = {
+      key, sym: r.sym, chain: r.pair.chainId, addr: r.pair.baseToken.address,
+      sig: r.a.sig, score: r.a.score, layer: r.a.layer, price: r.a.price,
+      ui: r.ui != null ? r.ui : (old.ui != null ? old.ui : null),
+      value: r.value != null ? r.value : (old.value != null ? old.value : null),
+      p0: old.p0 || r.a.price, at0: old.at0 || now, at: now,
+      cost: old.cost != null ? old.cost : null,
+      delta: old.delta || null,
+    };
+  }
+  g.at = g.at || now;
+  saveGuard(g);
+}
+
+function renderGuardian() {
+  const g = loadGuard();
+  const keys = Object.keys(g.items);
+  const sec = $('guardSec');
+  if (!keys.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  $('guardTitle').textContent = L('THE GUARDIAN — BAGS ON WATCH', '守护 — 仓位监控中');
+  const btn = $('gdRefresh'); btn.disabled = guarding; btn.textContent = guarding ? '…' : L('RE-CHECK NOW', '立刻重查');
+  const ageM = g.at ? (Date.now() - g.at) / 60e3 : null;
+  $('guardQuip').textContent = L("lives only in your browser. every visit we re-run every floor and flag what moved — the chain doesn't pause when you look away.", '只存在你的浏览器里。每次回来，我们把每一层地板重跑一遍，标出变化——你不看盘的时候，链可不会暂停。') + (ageM != null ? ' · ' + L('last check ' + fmtAge(ageM / 60) + ' ago', '上次核查于 ' + fmtAge(ageM / 60) + ' 前') : '');
+  $('gAdd').placeholder = L('add any CA to the watch (any chain)', '手动添加任意链的 CA 进监控');
+  $('gAddBtn').textContent = L('ADD', '添加');
+  $('guardFoot').textContent = L('stage A: re-checked on every visit while the tab is yours. telegram pings are stage B.', 'Stage A：每次访问自动重查。TG 推送是 Stage B——在路上了。');
+  const al = $('guardAlerts');
+  al.innerHTML = '';
+  for (const c of guardChanges) {
+    const S = SIGNALS[c.to] || SIGNALS.NEUTRAL;
+    const worse = (GOOD[c.to] != null ? GOOD[c.to] : 3) < (GOOD[c.from] != null ? GOOD[c.from] : 3);
+    const el = document.createElement('div');
+    el.className = 'rcard';
+    el.style.setProperty('--sig', S.color);
+    el.innerHTML = '<div class="rrow"><div class="rmeta"><span style="font-size:14px;">' + (worse ? '🚨' : '🧱') + '</span><span class="rsym">$' + c.sym + '</span>' +
+      '<span class="rpill" style="white-space:normal;">' + (SIGNALS[c.from] ? SIGNALS[c.from].label : c.from) + ' → ' + S.label + '</span></div></div>' +
+      '<div class="rline">' + (worse
+        ? (c.to === 'EXIT_LIQ' ? L("the floor under this bag just failed. whoever buys the bounce is the exit — make sure it's not you.", '这个仓脚下的地板刚刚塌了。谁买反弹谁就是出口——别让那个人是你。')
+          : c.to === 'DEAD' ? L('the pair is gone. nothing left to read.', '交易对没了。没有可读的东西了。')
+            : L('structure degraded since the last check.', '结构比上次核查时更弱了。'))
+        : L('a new layer held under this bag since the last check.', '上次核查之后，这个仓脚下新站住了一层。')) + '</div>';
+    el.onclick = () => { $('ca').value = c.addr; check(c.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    al.appendChild(el);
+  }
+  const list = $('guardList');
+  list.innerHTML = '';
+  const items = keys.map(k => g.items[k]).sort((a, b) => ((GOOD[a.sig] != null ? GOOD[a.sig] : 3) - (GOOD[b.sig] != null ? GOOD[b.sig] : 3)) || ((b.value || 0) - (a.value || 0)));
+  for (const it of items) {
+    const S = SIGNALS[it.sig] || SIGNALS.NEUTRAL;
+    const chg = (it.price && it.p0) ? (it.price / it.p0 - 1) * 100 : null;
+    const showDelta = it.delta && (Date.now() - it.delta.at) < 48 * 36e5;
+    const el = document.createElement('div');
+    el.className = 'rcard';
+    el.style.setProperty('--sig', S.color);
+    el.innerHTML =
+      '<div class="rrow"><div class="rmeta"><span class="rsym">$' + it.sym + '</span><span class="rchain">' + it.chain.toUpperCase() + '</span><span class="rpill">' + S.label + '</span>' +
+      (showDelta ? '<span class="badge">Δ ' + L('was ', '此前 ') + (SIGNALS[it.delta.from] ? SIGNALS[it.delta.from].label : it.delta.from) + '</span>' : '') + '</div>' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">' +
+      '<span class="grotesk" style="font-size:15px;font-weight:700;color:' + (chg == null ? 'var(--text-muted)' : chg >= 0 ? 'var(--state-pve)' : 'var(--state-exit)') + '">' + (chg == null ? '—' : (chg >= 0 ? '+' : '') + chg.toFixed(1) + '%') + '</span>' +
+      '<span class="gddel" title="unguard" style="cursor:pointer;color:var(--text-muted);font-size:15px;padding:4px 6px;">×</span></div></div>' +
+      '<div class="rline">' + L('guarded ' + fmtAge((Date.now() - it.at0) / 36e5) + ' ago @ ' + fmtPrice(it.p0) + ' → now ' + fmtPrice(it.price), fmtAge((Date.now() - it.at0) / 36e5) + ' 前开始守护 @ ' + fmtPrice(it.p0) + ' → 现在 ' + fmtPrice(it.price)) + (it.value ? ' · ' + fmtUsd(it.value) : '') + '</div>' +
+      '<div class="rline sub"><span class="gdcost" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--border-strong);text-underline-offset:2px;">' +
+      (it.cost ? L('your entry ', '你的入场价 ') + fmtPrice(it.cost) + ' → ' + (it.price ? (((it.price / it.cost - 1) >= 0 ? '+' : '') + ((it.price / it.cost - 1) * 100).toFixed(1) + '%') : '—') : L('set entry price — make it personal', '填上入场价 — 让判决扎心一点')) + '</span></div>';
+    el.querySelector('.gddel').onclick = (e) => { e.stopPropagation(); const gg = loadGuard(); delete gg.items[it.key]; saveGuard(gg); renderGuardian(); };
+    el.querySelector('.gdcost').onclick = (e) => {
+      e.stopPropagation();
+      const v = parseFloat(prompt(L('your entry price in USD for $' + it.sym + ' (e.g. 0.0043):', '$' + it.sym + ' 的入场价（USD，例如 0.0043）：'), it.cost || ''));
+      const gg = loadGuard();
+      if (gg.items[it.key]) { gg.items[it.key].cost = (v > 0 ? v : null); saveGuard(gg); renderGuardian(); }
+    };
+    el.onclick = () => { $('ca').value = it.addr; check(it.addr); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    list.appendChild(el);
+  }
+}
+
+async function refreshGuardian() {
+  if (guarding) return;
+  const g = loadGuard();
+  const keys = Object.keys(g.items);
+  if (!keys.length) return;
+  guarding = true;
+  const btn = $('gdRefresh'); btn.disabled = true;
+  let done = 0;
+  for (const k of keys) {
+    const it = g.items[k]; done++;
+    btn.textContent = done + '/' + keys.length;
+    try {
+      const pair = await fetchPair(it.addr);
+      if (!pair) {
+        if (it.sig !== 'DEAD') { it.delta = { from: it.sig, to: 'DEAD', at: Date.now() }; guardChanges.push({ sym: it.sym, addr: it.addr, from: it.sig, to: 'DEAD' }); it.sig = 'DEAD'; }
+      } else {
+        const candles = await fetchCandles(pair.chainId, pair.pairAddress);
+        const a = analyze(pair, candles);
+        if (a.sig !== it.sig) { it.delta = { from: it.sig, to: a.sig, at: Date.now() }; guardChanges.push({ sym: it.sym, addr: it.addr, from: it.sig, to: a.sig }); }
+        it.sig = a.sig; it.score = a.score; it.layer = a.layer; it.price = a.price;
+        if (it.ui != null) it.value = it.ui * a.price;
+      }
+    } catch (e) {}
+    it.at = Date.now();
+    await sleep(2200);
+  }
+  g.at = Date.now();
+  saveGuard(g);
+  guarding = false;
+  renderGuardian();
+}
+
+async function maybeAutoRefreshGuard() {
+  const g = loadGuard();
+  if (!Object.keys(g.items).length) return;
+  if (Date.now() - (g.at || 0) < 10 * 60e3) return;
+  await sleep(3000);
+  for (let i = 0; i < 80 && scanning; i++) await sleep(1500); // let a solo radar pass finish first — shared rate budget
+  refreshGuardian();
+}
+
+async function addGuardManual() {
+  const v = $('gAdd').value.trim();
+  if (!v) return;
+  const btn = $('gAddBtn'); btn.disabled = true; btn.textContent = '…';
+  try {
+    const pair = await fetchPair(v);
+    if (!pair) { btn.textContent = L('NO PAIR', '没找到'); setTimeout(() => { btn.disabled = false; renderGuardian(); }, 1400); return; }
+    const candles = await fetchCandles(pair.chainId, pair.pairAddress);
+    const a = analyze(pair, candles);
+    guardUpsert([{ pair, sym: pair.baseToken.symbol.replace(/^\$+/, ''), a, value: null, ui: null }], null);
+    $('gAdd').value = '';
+    btn.disabled = false;
+    renderGuardian();
+  } catch (e) { btn.textContent = L('FAILED', '失败了'); setTimeout(() => { btn.disabled = false; renderGuardian(); }, 1400); }
 }
 
 // ---- marks: the user's own falsification experiment (localStorage only) ----
@@ -1019,11 +1583,30 @@ $('go').onclick = () => check($('ca').value);
 $('ca').addEventListener('keydown', (e) => { if (e.key === 'Enter') check($('ca').value); });
 $('mkRefresh').onclick = renderMarks;
 $('langBtn').onclick = () => setLang(LANG === 'zh' ? 'en' : 'zh');
+$('wConnect').onclick = () => {
+  const pk = savedWallet();
+  if (pk) return bagScan(pk);
+  connectWallet();
+};
+$('bagCta').onclick = () => {
+  const v = $('ca').value.trim();
+  if (BASE58_RE.test(v)) return bagScan(v);
+  $('ca').placeholder = L('paste your SOL wallet address', '粘贴你的 SOL 钱包地址');
+  $('ca').focus();
+};
+$('bagRescan').onclick = () => { if (lastBag && lastBag.wallet) bagScan(lastBag.wallet); };
+$('gdRefresh').onclick = refreshGuardian;
+$('gAddBtn').onclick = addGuardManual;
+$('gAdd').addEventListener('keydown', (e) => { if (e.key === 'Enter') addGuardManual(); });
 applyStatic();
 renderMarks();
+renderGuardian();
+maybeAutoRefreshGuard();
 const bootParams = new URLSearchParams(location.search);
 const qp = bootParams.get('t');
 if (qp) { $('ca').value = qp; check(qp); }
+const wq = bootParams.get('w');
+if (wq && !qp) bagScan(wq);
 (async () => {
   if (!bootParams.get('solo') && await tryCentralFeed()) return; // central mode active
   const bootCache = feedCacheLoad();
