@@ -659,7 +659,7 @@ function render(pair, a) {
     '<div class="actions">' +
       '<a class="btn primary" id="shareX">' + L('SHARE VERDICT ON X', '把判决分享到 X') + '</a>' +
       '<a class="btn ghost" id="gdBtn">' + L('GUARD THIS BAG — WATCH THE FLOOR', '守护这个仓 — 盯住地板') + '</a>' +
-      (tradeURL(pair.chainId, pair.baseToken.address) ? '<a class="btn ghost" href="' + tradeURL(pair.chainId, pair.baseToken.address) + '" target="_blank" rel="noopener">' + L('TRADE IT ON GMGN ↗ — YOUR CLICK, YOUR RECEIPT', '去 GMGN 交易 ↗ — 你的手指，你的收据') + '</a>' : '') +
+      (tradeURL(pair.chainId, pair.baseToken.address) ? '<a class="btn ghost" href="' + tradeURL(pair.chainId, pair.baseToken.address) + '" target="_blank" rel="noopener">' + L('TRADE IT ↗', '去交易 ↗') + '</a>' : '') +
       '<a class="btn ghost" id="mkBtn">' + L('MARK IT — VERIFY ME LATER', '打个标记 — 回头验证我们') + '</a>' +
       '<a class="btn ghost" id="dlR">' + L('DOWNLOAD RECEIPT', '下载收据') + '</a>' +
       '<a class="btn ghost" id="chBtn">' + L('THINK IT\'S WRONG? POST THE COUNTER-CASE', '觉得判错了？发帖打脸') + '</a>' +
@@ -999,14 +999,14 @@ async function connectWallet() {
   } catch (e) { applyWalletBtn(); } // user closed the popup — no drama, no retry-nagging
 }
 
-// trade deep links: we don't execute trades (stage C decides if we ever do) — we route
-// to the terminal degens already trust and take the referral leg. drop a ref code in
-// GMGN_REF to start earning fee share from day one (gmgn.ai/{chain}/token/{ref}_{addr}).
-const GMGN_SLUG = { solana: 'sol', bsc: 'bsc', base: 'base', ethereum: 'eth' };
-const GMGN_REF = '';
+// trade deep links: we don't execute trades (stage C decides if we ever do) — we deep-link
+// into Trust Wallet's in-app swap with the target token preselected. on mobile the universal
+// link opens the app directly; coin ids are UAIs from trustwallet/wallet-core registry.json.
+// swap-route coverage verified 2026-08-26 on live long-tail memes: BSC, SOL (pump.fun), RH chain.
+const TW_COIN = { solana: 'c501', bsc: 'c20000714', base: 'c8453', ethereum: 'c60', robinhood: 'c10004663' };
 function tradeURL(chainId, addr) {
-  const slug = GMGN_SLUG[chainId];
-  return slug ? 'https://gmgn.ai/' + slug + '/token/' + (GMGN_REF ? GMGN_REF + '_' : '') + addr : null;
+  const coin = TW_COIN[chainId];
+  return coin ? 'https://link.trustwallet.com/swap?fromAsset=' + coin + '&toAsset=' + coin + '_t' + encodeURIComponent(addr) : null;
 }
 
 function fmtQty(n) { if (n == null) return '—'; if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return n >= 1 ? n.toFixed(1) : n.toPrecision(2); }
