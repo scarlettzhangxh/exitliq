@@ -1006,7 +1006,7 @@ async function connectWallet() {
 const TW_COIN = { solana: 'c501', bsc: 'c20000714', base: 'c8453', ethereum: 'c60', robinhood: 'c10004663' };
 function tradeURL(chainId, addr) {
   const coin = TW_COIN[chainId];
-  return coin ? 'https://link.trustwallet.com/swap?fromAsset=' + coin + '&toAsset=' + coin + '_t' + encodeURIComponent(addr) : null;
+  return coin ? 'https://link.trustwallet.com/swap?from=' + coin + '&to=' + coin + '_t' + encodeURIComponent(addr) : null;
 }
 
 function fmtQty(n) { if (n == null) return '—'; if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return n >= 1 ? n.toFixed(1) : n.toPrecision(2); }
