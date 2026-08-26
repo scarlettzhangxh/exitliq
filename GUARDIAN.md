@@ -24,7 +24,12 @@
    每次回访自动重扫守护列表，状态迁移置顶播报："自上次：$WIF PVE_MOMENT → EXIT_LIQ"。
 7. **可选成本价**：每仓一个手动输入 "我大概 $X 进的"（只存本地）→ 判决语可以指名道姓：
    "你入场层**下方**的那一层刚刚 round-trip"。没有链上成本基础（免费 RPC 拿不到交易历史），手动一格解决 80% 情绪价值。
-8. BSC/BASE：无免 key 余额 API，v0 不自动拉，允许**手动添加 CA** 进守护列表（同一 diff 机制）。
+8. **EVM 链持仓（2026-08-26 更新）**：EVM 没有"列出我的代币"这种原生 RPC——枚举持仓必须靠链下索引器。
+   免 key + CORS 开放的索引器只有 Blockscout：**robinhood ✓ 已验证**（robinhoodchain.blockscout.com，ACAO:*，真实数据），
+   **base 已接入但实例当时超时(524)**——按链优雅降级，失败链在报告脚注注明"本轮未读取"。
+   **BSC 没有任何免 key 索引器**（BscScan 要 key）→ BSC 持仓扫描放 Stage B 服务端（key 存 Actions secret）。
+   0x 钱包 = 一次扫 base+robinhood 合并报告；EVM 连接钱包走 MetaMask `eth_requestAccounts`（同样只拿地址，零签名）。
+   所有链的 CA 仍可**手动添加**进守护列表（同一 diff 机制）。
 
 ### 隐私
 

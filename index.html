@@ -302,7 +302,7 @@ function applyStatic() {
     '<b>可证伪协议。</b>阈值是先验值，不是曲线拟合，正在用前向收益分桶公开校准。每份判决都提交进公开 git 账本，时间戳防篡改——错的也保留：<a href="https://github.com/scarlettzhangxh/exitliq" target="_blank" rel="noopener">github.com/scarlettzhangxh/exitliq</a>。如果 favorable 桶跑不赢 risk 桶，这个产品就该死。就这么定。');
   $('footLine').innerHTML = L('exitliq.wtf reads structure, not fortunes. we never block a trade — your click, your receipt.<br>data: dexscreener + geckoterminal public APIs · no keys, no backend, no tracking.',
     'exitliq.wtf 读的是结构，不是命运。我们从不拦截交易——你的手指，你的收据。<br>数据：dexscreener + geckoterminal 公开 API · 无密钥、无后端、无跟踪。');
-  $('bagCta').textContent = L('▸ or paste a SOL wallet address — every holding gets a verdict', '▸ 或者直接贴一个 SOL 钱包地址 — 每个仓位一份判决');
+  $('bagCta').textContent = L('▸ or paste a SOL / 0x wallet address — every holding gets a verdict', '▸ 或者直接贴一个 SOL / 0x 钱包地址 — 每个仓位一份判决');
   applyWalletBtn();
 }
 function setLang(l) {
@@ -765,7 +765,11 @@ async function check(addr) {
     const pair = await fetchPair(addr);
     if (!pair) {
       // no market for this address — maybe it's not a token at all but a wallet.
-      // one cheap RPC call decides: system-owned (or unfunded) = wallet → bag scan.
+      if (EVM_RE.test(addr)) {
+        setStatus(L('no pair — trying it as an EVM wallet (base / robinhood)…', '找不到交易对——按 EVM 钱包试试（base / robinhood）…'));
+        return bagScan(addr);
+      }
+      // SOL side: one cheap RPC call decides — system-owned (or unfunded) = wallet → bag scan.
       if (BASE58_RE.test(addr)) {
         try {
           const info = await solRpc('getAccountInfo', [addr, { encoding: 'base64' }]);
@@ -877,6 +881,35 @@ async function fetchWalletTokens(wallet) {
   return { mints: Object.keys(merged).map(m => ({ mint: m, ui: merged[m] })), sol: lamports / 1e9 };
 }
 
+// EVM holdings: EVM has no "list my tokens" RPC — enumeration needs an indexer, and
+// Blockscout instances are the only keyless+CORS ones. verified 2026-08: robinhood ✓
+// (ACAO:*, real data); base instance existed but its heavy endpoints were timing out
+// (524) at build time — coded anyway, fails soft per chain. bsc has NO keyless indexer
+// at all (BscScan wants a key) → bsc bag scan waits for stage B's server side.
+const EVM_SCOUT = { robinhood: 'https://robinhoodchain.blockscout.com', base: 'https://base.blockscout.com' };
+const EVM_RE = /^0x[0-9a-fA-F]{40}$/;
+async function fetchEvmChainTokens(chain, wallet) {
+  // hard 12s timeout: a hung indexer (base was 524ing at build time) must not stall the whole scan
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 12000);
+  let r;
+  try { r = await fetch(EVM_SCOUT[chain] + '/api/v2/addresses/' + wallet + '/token-balances', { headers: { accept: 'application/json' }, signal: ctl.signal }); }
+  finally { clearTimeout(timer); }
+  if (!r.ok) throw new Error(chain + ' scout ' + r.status);
+  const d = await r.json();
+  const items = Array.isArray(d) ? d : ((d || {}).items || []);
+  const out = [];
+  for (const it of items) {
+    const t = it.token || {};
+    if ((t.type || 'ERC-20') !== 'ERC-20') continue; // NFTs are not bags
+    const dec = +t.decimals, addr = t.address || t.address_hash;
+    if (!addr || !(dec > 0)) continue;
+    const ui = Number(it.value) / Math.pow(10, dec);
+    if (ui > 0) out.push({ mint: addr, ui, chain });
+  }
+  return out;
+}
+
 // best (deepest-liquidity) pair per token. batch responses cap at ~30 pairs, so
 // gap-fill the crowded-out ones individually — bounded, spam wallets hold hundreds.
 async function fetchBestPairs(addrs, gapLimit) {
@@ -889,6 +922,8 @@ async function fetchBestPairs(addrs, gapLimit) {
       if (!want.has(k)) continue;
       const liq = ((p.liquidity || {}).usd) || 0;
       if (!out[k] || liq > (((out[k].liquidity || {}).usd) || 0)) out[k] = p;
+      const kc = k + '|' + p.chainId; // chain-scoped: one 0x address can live on several EVM chains
+      if (!out[kc] || liq > (((out[kc].liquidity || {}).usd) || 0)) out[kc] = p;
     }
   };
   for (let i = 0; i < addrs.length; i += 25) {
@@ -931,6 +966,24 @@ async function connectWallet() {
   const btn = $('wConnect');
   const p = solProvider();
   if (!p) {
+    // no solana provider — try an EVM one (MetaMask etc). eth_requestAccounts only
+    // reveals the address; still zero signatures.
+    const eth = window.ethereum;
+    if (eth && eth.request) {
+      try {
+        btn.textContent = '…';
+        const accs = await eth.request({ method: 'eth_requestAccounts' });
+        const pk = accs && accs[0];
+        if (pk) {
+          try { localStorage.setItem(WALLET_KEY, pk); } catch (e) {}
+          applyWalletBtn();
+          bagScan(pk);
+          return;
+        }
+      } catch (e) {}
+      applyWalletBtn();
+      return;
+    }
     btn.classList.add('warn');
     btn.textContent = L('NO WALLET EXTENSION — PASTING AN ADDRESS WORKS THE SAME', '没检测到钱包插件 — 直接贴地址，一样用');
     setTimeout(() => { btn.classList.remove('warn'); applyWalletBtn(); }, 3000);
@@ -998,7 +1051,9 @@ function renderBagFoot(B) {
   if (B.overCap.length) bits.push(L('◦ ' + B.overCap.length + ' smaller bags skipped this pass (top ' + BAG_CAP + ' by value analyzed)', '◦ ' + B.overCap.length + ' 个较小仓位本轮跳过（只判价值前 ' + BAG_CAP + ' 名）'));
   if (B.dust.length) bits.push(L('◦ ' + B.dust.length + ' dust bags under $' + DUST_USD + ' — we let the dead rest', '◦ ' + B.dust.length + ' 个低于 $' + DUST_USD + ' 的尘埃仓 — 让死者安息'));
   if (B.noMarket.length) bits.push(L('◦ ' + B.noMarket.length + ' with no live market (or past the pricing cap) — unpriceable', '◦ ' + B.noMarket.length + ' 个没有活跃市场（或超出定价上限）— 无法定价'));
-  bits.push(L('◦ privacy: your wallet went to public RPC + dexscreener only. we have no server to send it to.', '◦ 隐私：你的钱包地址只发给了公共 RPC 和 dexscreener。我们没有服务器，想收也收不了。'));
+  if (B.unreadable && B.unreadable.length) bits.push(L('◦ ' + B.unreadable.length + ' bag' + (B.unreadable.length > 1 ? 's' : '') + ' had no readable tape this pass (' + B.unreadable.map(r => '$' + r.sym).join(' ') + ') — rate limits happen, rescan in a minute', '◦ ' + B.unreadable.length + ' 个仓本轮拉不到 K 线（' + B.unreadable.map(r => '$' + r.sym).join(' ') + '）——可能被限速，过一分钟重扫'));
+  if (B.failedChains && B.failedChains.length) bits.push(L('◦ ' + B.failedChains.join(' / ') + ' indexer unreachable this pass — bags on ' + (B.failedChains.length > 1 ? 'those chains' : 'that chain') + ' unread, try a rescan later', '◦ ' + B.failedChains.join(' / ') + ' 的索引器本轮没响应——该链持仓未读取，稍后重扫'));
+  bits.push(L('◦ privacy: your wallet went to public data APIs only (RPC / jupiter / blockscout / dexscreener). we have no server to send it to.', '◦ 隐私：你的钱包地址只发给了公开数据接口（RPC / jupiter / blockscout / dexscreener）。我们没有服务器，想收也收不了。'));
   $('bagFoot').innerHTML = bits.join('<br>');
 }
 
@@ -1102,7 +1157,8 @@ function bagReceipt(B) {
 
 async function bagScan(wallet) {
   wallet = (wallet || '').trim();
-  if (!BASE58_RE.test(wallet)) { setStatus(L('that does not look like a SOL wallet address.', '这看起来不像一个 SOL 钱包地址。'), true); return; }
+  const isEvm = EVM_RE.test(wallet);
+  if (!isEvm && !BASE58_RE.test(wallet)) { setStatus(L('that does not look like a SOL or 0x wallet address.', '这看起来既不是 SOL 也不是 0x 钱包地址。'), true); return; }
   $('card').style.display = 'none';
   const sec = $('bagSec'); sec.style.display = 'block';
   $('bagList').innerHTML = ''; $('bagSummary').innerHTML = ''; $('bagActions').innerHTML = ''; $('bagFoot').innerHTML = '';
@@ -1111,22 +1167,33 @@ async function bagScan(wallet) {
   $('bagQuip').textContent = L('every bag gets the same verdict a stranger would get. your wallet never leaves this browser.', '每个仓位接受与陌生人同款的判决。你的钱包地址不会离开这个浏览器。');
   try {
     setStatus(L('PULLING YOUR BAGS FROM THE CHAIN', '正在从链上拉取你的持仓'));
-    const { mints, sol } = await fetchWalletTokens(wallet);
+    let mints = [], sol = 0;
+    const failedChains = [];
+    if (isEvm) {
+      const chains = Object.keys(EVM_SCOUT);
+      const res = await Promise.allSettled(chains.map(c => fetchEvmChainTokens(c, wallet)));
+      chains.forEach((c, i) => { if (res[i].status === 'fulfilled') mints.push(...res[i].value); else failedChains.push(c); });
+      if (failedChains.length === chains.length) throw new Error(L('every EVM indexer is down right now', 'EVM 索引器全都没响应'));
+    } else {
+      const w = await fetchWalletTokens(wallet);
+      mints = w.mints; sol = w.sol;
+    }
     if (!mints.length && !(sol > 0)) {
       clearStatus();
-      lastBag = { wallet, sol: 0, gated: [], dust: [], noMarket: [], overCap: [], analyzed: [], at: Date.now() };
+      lastBag = { wallet, sol: 0, gated: [], dust: [], noMarket: [], overCap: [], analyzed: [], failedChains, at: Date.now() };
       $('bagSummary').innerHTML = '<div class="rcard" style="cursor:default;--sig:var(--state-neutral)"><div class="rline">' +
-        L('no bags at this address. fresh wallet, cold wallet, or you already sold everything — respect either way.', '这个地址上没有仓位。要么是新钱包，要么是冷钱包，要么你已经清仓了——不管哪种，敬佩。') + '</div></div>';
+        L('no bags at this address. fresh wallet, cold wallet, you already sold everything — or a token with no live pair yet. all of them are answers.', '这个地址上没有仓位。新钱包、冷钱包、已经清仓——或者这是一个还没有交易对的代币地址。哪种都是答案。') + '</div></div>';
       renderBagFoot(lastBag);
       history.replaceState(null, '', location.pathname + '?w=' + encodeURIComponent(wallet));
       return;
     }
     setStatus(L('PRICING ' + mints.length + ' BAGS', '正在为 ' + mints.length + ' 个仓位定价'));
-    const uniq = [...new Set([WSOL].concat(mints.map(m => m.mint)))];
-    const pairs = await fetchBestPairs(uniq, 40);
-    const solUsd = sol * (+(((pairs[WSOL.toLowerCase()] || {}).priceUsd)) || 0);
+    const uniq = [...new Set((isEvm ? [] : [WSOL]).concat(mints.map(m => m.mint)))];
+    const pairs = await fetchBestPairs(uniq, 60);
+    const solUsd = isEvm ? 0 : sol * (+(((pairs[WSOL.toLowerCase()] || {}).priceUsd)) || 0);
     const rows = mints.filter(m => m.mint !== WSOL).map(m => {
-      const p = pairs[m.mint.toLowerCase()] || null;
+      // EVM bags must match a pair on THEIR chain — the same 0x address elsewhere is a different token
+      const p = m.chain ? (pairs[m.mint.toLowerCase() + '|' + m.chain] || null) : (pairs[m.mint.toLowerCase()] || null);
       const price = p ? (+p.priceUsd || 0) : 0;
       return { mint: m.mint, ui: m.ui, pair: p, price, value: m.ui * price, sym: p ? p.baseToken.symbol.replace(/^\$+/, '') : shortCA(m.mint) };
     });
@@ -1140,7 +1207,7 @@ async function bagScan(wallet) {
       (reason ? gated : trench).push(r);
     }
     const toScan = trench.slice(0, BAG_CAP), overCap = trench.slice(BAG_CAP);
-    const analyzed = [];
+    const analyzed = [], unreadable = [];
     let done = 0;
     for (const r of toScan) {
       done++;
@@ -1150,11 +1217,11 @@ async function bagScan(wallet) {
         r.a = analyze(r.pair, candles);
         analyzed.push(r);
         insertBagRow(r);
-      } catch (e) {}
+      } catch (e) { unreadable.push(r); } // rate-limited tape ≠ no tape — count it, don't vanish it
       await sleep(2200);
     }
     clearStatus();
-    lastBag = { wallet, sol, solUsd, gated, dust, noMarket, overCap, analyzed, at: Date.now() };
+    lastBag = { wallet, sol, solUsd, gated, dust, noMarket, overCap, analyzed, unreadable, failedChains, at: Date.now() };
     renderBagSummary(lastBag);
     history.replaceState(null, '', location.pathname + '?w=' + encodeURIComponent(wallet));
   } catch (e) {
@@ -1590,8 +1657,8 @@ $('wConnect').onclick = () => {
 };
 $('bagCta').onclick = () => {
   const v = $('ca').value.trim();
-  if (BASE58_RE.test(v)) return bagScan(v);
-  $('ca').placeholder = L('paste your SOL wallet address', '粘贴你的 SOL 钱包地址');
+  if (BASE58_RE.test(v) || EVM_RE.test(v)) return bagScan(v);
+  $('ca').placeholder = L('paste your SOL / 0x wallet address', '粘贴你的 SOL / 0x 钱包地址');
   $('ca').focus();
 };
 $('bagRescan').onclick = () => { if (lastBag && lastBag.wallet) bagScan(lastBag.wallet); };
