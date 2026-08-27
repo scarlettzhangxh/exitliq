@@ -384,16 +384,49 @@ async function fetchPair(addr) {
   return pairs[0];
 }
 
+// ---- global GeckoTerminal gate ----
+// every GT call from every feature (radar, check, bag scan, guardian) shares
+// ONE per-IP budget (~30/min). flows used to pace themselves and stack over
+// the limit when running together; now they all queue through this single
+// choke point — serial, min-gap between calls, one paced retry on 429.
+// two lanes: user-initiated calls (check, bag scan) jump ahead of background
+// work (radar, guardian auto-refresh) so a click never waits behind a scan.
+const GT_GAP_MS = 2600;
+const gtHigh = [], gtLow = [];
+let gtPumping = false, gtLast = 0;
+function gtFetch(url, prio) {
+  return new Promise((resolve, reject) => {
+    (prio ? gtHigh : gtLow).push({ url, resolve, reject });
+    gtPump();
+  });
+}
+async function gtPump() {
+  if (gtPumping) return;
+  gtPumping = true;
+  while (gtHigh.length || gtLow.length) {
+    const it = gtHigh.length ? gtHigh.shift() : gtLow.shift();
+    const wait = gtLast + GT_GAP_MS - Date.now();
+    if (wait > 0) await new Promise(res => setTimeout(res, wait));
+    gtLast = Date.now();
+    try {
+      let r = await fetch(it.url);
+      if (r.status === 429) { // still over budget — breathe once, inside the gate
+        await new Promise(res => setTimeout(res, 15000));
+        gtLast = Date.now();
+        r = await fetch(it.url);
+      }
+      it.resolve(r);
+    } catch (e) { it.reject(e); }
+  }
+  gtPumping = false;
+}
+
 const candleCache = {};
-async function fetchCandles(chainId, poolAddr) {
+async function fetchCandles(chainId, poolAddr, prio) {
   const net = GT_NET[chainId] || chainId;
   const key = net + ':' + poolAddr;
   if (candleCache[key] && Date.now() - candleCache[key].at < 10 * 60e3) return candleCache[key].data;
-  let r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/pools/' + poolAddr + '/ohlcv/hour?aggregate=1&limit=1000');
-  if (r.status === 429) { // per-IP rate limit — breathe and retry once
-    await new Promise(res => setTimeout(res, 12000));
-    r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/pools/' + poolAddr + '/ohlcv/hour?aggregate=1&limit=1000');
-  }
+  const r = await gtFetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/pools/' + poolAddr + '/ohlcv/hour?aggregate=1&limit=1000', prio);
   if (!r.ok) throw new Error('geckoterminal ' + r.status);
   const d = await r.json();
   const list = (((d.data || {}).attributes || {}).ohlcv_list || []).slice();
@@ -791,7 +824,7 @@ async function check(addr) {
     if (reason) { clearStatus(); renderOOS(pair, reason); history.replaceState(null, '', location.pathname + '?t=' + encodeURIComponent(addr)); return; }
     setStatus(L('TESTING THE FLOORS', '检测地板强度') + ' · $' + pair.baseToken.symbol);
     let candles = [];
-    try { candles = await fetchCandles(pair.chainId, pair.pairAddress); }
+    try { candles = await fetchCandles(pair.chainId, pair.pairAddress, true); }
     catch (e) {
       // a failed tape pull is NOT the same as a young token — refuse to guess
       setStatus(L('couldn\'t pull the tape (rate-limited?). wait a minute and try again — no tape, no verdict.', '拉不到 K 线数据（可能被限速）。等一分钟再试——没有数据，就没有判决。'), true);
@@ -1213,12 +1246,12 @@ async function bagScan(wallet) {
       done++;
       setStatus(L('TESTING FLOOR ', '检测地板 ') + done + '/' + toScan.length + ' — $' + r.sym);
       try {
-        const candles = await fetchCandles(r.pair.chainId, r.pair.pairAddress);
+        const candles = await fetchCandles(r.pair.chainId, r.pair.pairAddress, true);
         r.a = analyze(r.pair, candles);
         analyzed.push(r);
         insertBagRow(r);
       } catch (e) { unreadable.push(r); } // rate-limited tape ≠ no tape — count it, don't vanish it
-      await sleep(2200);
+      // pacing now lives in the global GT gate
     }
     clearStatus();
     lastBag = { wallet, sol, solUsd, gated, dust, noMarket, overCap, analyzed, unreadable, failedChains, at: Date.now() };
@@ -1344,7 +1377,7 @@ async function refreshGuardian() {
       }
     } catch (e) {}
     it.at = Date.now();
-    await sleep(2200);
+    // pacing now lives in the global GT gate — no per-flow sleep needed
   }
   g.at = Date.now();
   saveGuard(g);
@@ -1368,7 +1401,7 @@ async function addGuardManual() {
   try {
     const pair = await fetchPair(v);
     if (!pair) { btn.textContent = L('NO PAIR', '没找到'); setTimeout(() => { btn.disabled = false; renderGuardian(); }, 1400); return; }
-    const candles = await fetchCandles(pair.chainId, pair.pairAddress);
+    const candles = await fetchCandles(pair.chainId, pair.pairAddress, true);
     const a = analyze(pair, candles);
     guardUpsert([{ pair, sym: pair.baseToken.symbol.replace(/^\$+/, ''), a, value: null, ui: null }], null);
     $('gAdd').value = '';
@@ -1456,7 +1489,7 @@ let scanning = false;
 
 async function fetchTrending(net) {
   try {
-    const r = await fetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/trending_pools?page=1');
+    const r = await gtFetch('https://api.geckoterminal.com/api/v2/networks/' + net + '/trending_pools?page=1');
     if (!r.ok) return [];
     const d = await r.json();
     return (d.data || []).map(p => {
@@ -1600,7 +1633,7 @@ async function radarScan(force) {
       unreadable++; consecFail++;
       if (consecFail >= 3) { aborted = true; break; }
     }
-    await sleep(4000);
+    // pacing now lives in the global GT gate
   }
   localStorage.setItem('layers_seen_v1', JSON.stringify(prev));
   localStorage.removeItem('layers_scanlock');
