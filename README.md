@@ -94,3 +94,23 @@ No build step. `index.html` is the entire product.
 
 *exitliq reads structure, not fortunes. it never blocks a trade — your click, your receipt.*
 ***nothing here is financial advice.***
+
+## Guardian setup (Stage B — TG push, personal edition)
+
+One-time, ~5 minutes, all on your side (credentials must not pass through the agent):
+
+1. **Create the bot**: message @BotFather on Telegram → `/newbot` → copy the token.
+2. **Get your chat id**: message your new bot anything, then open
+   `https://api.telegram.org/bot<TOKEN>/getUpdates` — `message.chat.id` is your id.
+3. **Set the secrets** (repo → Settings → Secrets and variables → Actions, or `gh secret set`):
+   - `TG_BOT_TOKEN` — from step 1
+   - `TG_CHAT_ID` — from step 2
+   - `WATCH_WALLET` — your SOL wallet address
+   - `STATE_KEY` — any long random passphrase (encrypts guard state in this public repo)
+   - optional `WATCH_CAS` — extra tokens: `chain:address,chain:address`
+   - optional `RADAR_CHAT_ID` — a public group/channel id; new PVE confirmations get
+     posted there as review invitations (add the bot as admin first)
+
+The guard job runs after every scan (~10 min cadence), pushes **only on verdict
+transitions** (🚨 structure broke / 🧱 structure repaired), never on price moves.
+Caps: 5 personal + 3 group pushes per day. No secrets → the job no-ops cleanly.

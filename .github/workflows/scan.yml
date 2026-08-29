@@ -26,3 +26,34 @@ jobs:
           git add feed.json verdicts.jsonl
           git diff --cached --quiet || git commit -m "scan $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
+
+  guard:
+    # TG bag guardian (Stage B): pushes ONLY on verdict transitions of watched
+    # holdings; optional radar broadcast to a public group. No-ops cleanly when
+    # secrets are absent, so forks and the public repo never fail.
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: pull the scan this run just committed
+        run: git pull --rebase origin main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: run guardian
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          WATCH_WALLET: ${{ secrets.WATCH_WALLET }}
+          WATCH_CAS: ${{ secrets.WATCH_CAS }}
+          RADAR_CHAT_ID: ${{ secrets.RADAR_CHAT_ID }}
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+        run: node guard.mjs
+      - name: commit encrypted guard state
+        run: |
+          git config user.name "exitliq-guard"
+          git config user.email "guard@users.noreply.github.com"
+          git add guard_state.enc 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "guard state"
+          git pull --rebase origin main && git push

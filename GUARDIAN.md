@@ -39,7 +39,14 @@
 
 ## Stage B — TG 推送守护（真守护：离开也被保护）
 
-### 路线 1（推荐，本版本做）：GitHub Actions 就是后端
+> **状态 2026-08-28：个人版已 SHIP**（guard.mjs + scan.yml 的 guard job，需求1 全量 + 雷达群播钩子）。
+> 与原规格的差异：① 单用户版免订阅表/免 /watch 命令——wallet/chat_id 全走 Actions secrets，
+> 状态文件 guard_state.enc 用 STATE_KEY AES-256-GCM 加密后提交公开仓（持仓构成不泄露）；
+> ② 判决引擎抽成 engine.mjs（scanner/guard 共用，杜绝第三份拷贝）；③ 原"需求2 个人买入推送"
+> 改为可选的公开 TG 群广播（RADAR_CHAT_ID）——新 PVE_MOMENT 以"审查邀请"框架进群（带层位数、
+> 无 buy 字样、每日 ≤3 条），群 = alpha 讨论社区 + 分发渠道。④ 迁移推送规则：组间迁移才推
+> （GOOD/MID/BAD 三组），组内漂移静默；任何→EXIT_LIQ 必推；🚨降级/🧱修复，个人 ≤5 条/天。
+> 激活清单见 README「Guardian setup」。
 
 已经有每 10 分钟的 cron 在跑，守护复用同一套：
 
