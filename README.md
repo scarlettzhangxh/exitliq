@@ -2,6 +2,8 @@
 
 # exitliq.wtf
 
+**English** · [中文](README.zh-CN.md)
+
 ### am i exit liq? — find out **before** you click buy.
 
 paste a CA. it replays every new high, waits four hours,
