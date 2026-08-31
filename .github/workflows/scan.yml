@@ -1,7 +1,7 @@
 name: radar scan
 on:
   schedule:
-    - cron: '*/10 * * * *'   # every ~10 min (GitHub may add a few minutes of jitter)
+    - cron: '6,26,46 * * * *'   # staggered odd minutes: */10 was starved to 2-12h gaps (GitHub deprioritizes crowded round-minute crons)
   workflow_dispatch: {}       # manual trigger button
 permissions:
   contents: write

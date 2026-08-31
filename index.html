@@ -1659,10 +1659,21 @@ async function tryCentralFeed() {
     const d = await r.json();
     if (!d || !Array.isArray(d.results) || !d.results.length) return false;
     const ageM = Math.round((Date.now() - d.at) / 60e3);
-    if (ageM > 25) return false; // scanner is down — fall back to solo scan
-    central = true;
+    if (ageM > 24 * 60) { central = false; return false; } // scanner dark for a day+ — solo scan is the honest option
+    const ageEn = ageM < 100 ? ageM + 'm' : (ageM / 60).toFixed(1) + 'h';
+    const ageZh = ageM < 100 ? ageM + ' 分钟前' : (ageM / 60).toFixed(1) + ' 小时前';
     renderFeedFrom(d.results);
-    $('rstatus').innerHTML = L('central scan · ' + ageM + 'm old · ' + d.results.length + ' readable · your browser makes zero data calls in this mode', '中央扫描 · ' + ageM + ' 分钟前 · ' + d.results.length + ' 可读 · 此模式下你的浏览器零数据请求');
+    if (ageM > 90) {
+      // stale but usable: paint it instantly (still zero data calls), then refresh locally in the
+      // background. central stays false so the 5-min loop and the rescan button run solo until a
+      // fresh central scan lands — otherwise a mid-session stale feed would be polled forever.
+      central = false;
+      $('rstatus').innerHTML = L('central scan · ' + ageEn + ' old (scheduler is napping) · shown instantly · refreshing locally…', '中央扫描 · ' + ageZh + '（调度器在打盹）· 先展示 · 后台本地刷新中…');
+      radarScan(false);
+      return true;
+    }
+    central = true;
+    $('rstatus').innerHTML = L('central scan · ' + ageEn + ' old · ' + d.results.length + ' readable · your browser makes zero data calls in this mode', '中央扫描 · ' + ageZh + ' · ' + d.results.length + ' 可读 · 此模式下你的浏览器零数据请求');
     return true;
   } catch (e) { return false; }
 }

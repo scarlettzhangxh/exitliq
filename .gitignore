@@ -1,3 +1,7 @@
 .DS_Store
 ITERATION_LOG.md
 guard_state.dry.json
+# working notes & internal tooling — never publish
+LAUNCH.md
+GUARDIAN.md
+tools/
