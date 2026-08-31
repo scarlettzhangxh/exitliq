@@ -826,9 +826,15 @@ async function check(addr) {
     let candles = [];
     try { candles = await fetchCandles(pair.chainId, pair.pairAddress, true); }
     catch (e) {
-      // a failed tape pull is NOT the same as a young token — refuse to guess
-      setStatus(L('couldn\'t pull the tape (rate-limited?). wait a minute and try again — no tape, no verdict.', '拉不到 K 线数据（可能被限速）。等一分钟再试——没有数据，就没有判决。'), true);
-      return;
+      // tape channel is hot — hold the user's hand through one more paced attempt
+      setStatus(L('tape channel is busy (rate-limited) — retrying automatically in ~20s…', 'K 线通道拥挤（限速中）——约 20 秒后自动重试…'));
+      await sleep(20000);
+      try { candles = await fetchCandles(pair.chainId, pair.pairAddress, true); }
+      catch (e2) {
+        // a failed tape pull is NOT the same as a young token — refuse to guess
+        setStatus(L('couldn\'t pull the tape (rate-limited?). wait a minute and try again — no tape, no verdict.', '拉不到 K 线数据（可能被限速）。等一分钟再试——没有数据，就没有判决。'), true);
+        return;
+      }
     }
     setStatus(L('BUILDING THE VERDICT', '生成判决'));
     const a = analyze(pair, candles);

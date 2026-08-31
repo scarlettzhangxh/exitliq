@@ -1,47 +1,28 @@
 name: radar scan
+# GitHub's cron scheduler starves scheduled workflows (observed gaps of 2-7h on
+# both */10 and offset-minute crons). So the real cadence lives INSIDE the job:
+# one run loops scan → commit → guard → sleep for ~5h, and the concurrency
+# group keeps exactly one running + one queued — every cron fire or manual
+# dispatch just queues the next relay leg. Cron is the re-igniter, not the clock.
 on:
   schedule:
-    - cron: '6,26,46 * * * *'   # staggered odd minutes: */10 was starved to 2-12h gaps (GitHub deprioritizes crowded round-minute crons)
-  workflow_dispatch: {}       # manual trigger button
+    - cron: '6,26,46 * * * *'
+  workflow_dispatch: {}
 permissions:
   contents: write
 concurrency:
   group: radar-scan
   cancel-in-progress: false
 jobs:
-  scan:
+  relay:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: run scanner
-        run: node scanner.mjs
-      - name: commit feed + ledger
-        run: |
-          git config user.name "exitliq-radar"
-          git config user.email "radar@users.noreply.github.com"
-          git add feed.json verdicts.jsonl
-          git diff --cached --quiet || git commit -m "scan $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
-
-  guard:
-    # TG bag guardian (Stage B): pushes ONLY on verdict transitions of watched
-    # holdings; optional radar broadcast to a public group. No-ops cleanly when
-    # secrets are absent, so forks and the public repo never fail.
-    needs: scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 8
-    steps:
-      - uses: actions/checkout@v4
-      - name: pull the scan this run just committed
-        run: git pull --rebase origin main
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: run guardian
+      - name: scan/guard relay loop (~5h, ~15min cycles)
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
@@ -49,11 +30,18 @@ jobs:
           WATCH_CAS: ${{ secrets.WATCH_CAS }}
           RADAR_CHAT_ID: ${{ secrets.RADAR_CHAT_ID }}
           STATE_KEY: ${{ secrets.STATE_KEY }}
-        run: node guard.mjs
-      - name: commit encrypted guard state
         run: |
-          git config user.name "exitliq-guard"
-          git config user.email "guard@users.noreply.github.com"
-          git add guard_state.enc 2>/dev/null || true
-          git diff --cached --quiet || git commit -m "guard state"
-          git pull --rebase origin main && git push
+          git config user.name "exitliq-radar"
+          git config user.email "radar@users.noreply.github.com"
+          for i in $(seq 1 20); do
+            echo "=== relay cycle $i/20 $(date -u +%H:%M) ==="
+            node scanner.mjs || echo "scan failed this cycle — keeping previous feed"
+            node guard.mjs || echo "guard failed this cycle"
+            git add feed.json verdicts.jsonl
+            git add guard_state.enc 2>/dev/null || true
+            if ! git diff --cached --quiet; then
+              git commit -m "scan $(date -u +%Y-%m-%dT%H:%MZ)"
+              git pull --rebase origin main && git push || echo "push failed — will retry next cycle"
+            fi
+            [ "$i" -lt 20 ] && sleep 600
+          done
