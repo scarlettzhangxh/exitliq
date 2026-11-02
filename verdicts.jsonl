@@ -70985,3 +70985,11 @@
 {"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.119972212529592}
 {"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":34,"layer":1,"price":62.7580994208844}
 {"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":24,"layer":1,"price":0.0304120807703426}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"bsc","addr":"0x8c907e0a72c3d55627e853f4ec6a96b0c8771145","sym":"ZIG","sig":"STRUCT_RISK","score":31,"layer":1,"price":0.0415331330939136}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"bsc","addr":"0x2c3a8ee94ddd97244a93bc48298f97d2c412f7db","sym":"AKE","sig":"STRUCT_RISK","score":17,"layer":1,"price":0.00555225173949719}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.0175519354639103}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"solana","addr":"jM9r9PJFyPaMEbhGZPbDeZJiysn2pfyz5TzdDs5pump","sym":"uni","sig":"STRUCT_RISK","score":16,"layer":1,"price":0.008410501107065923}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"solana","addr":"6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx","sym":"STONK","sig":"STRUCT_RISK","score":30,"layer":2,"price":0.10399872269930063}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.118956477430665}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":34,"layer":1,"price":62.282630854561}
+{"ts":"2026-11-02T19:47:40.369Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":24,"layer":1,"price":0.0300238782402448}
