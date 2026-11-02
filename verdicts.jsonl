@@ -70982,3 +70982,6 @@
 {"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0xacc8de336f5d2366fa7334383d8fab73499f582a","sym":"FOREVER","sig":"PVE_MOMENT","score":74,"layer":6,"price":0.00637952137962319}
 {"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0x75d874378ae31b33ab9e7a40b4dca96134221111","sym":"LOBIN","sig":"PVE_MOMENT","score":85,"layer":10,"price":0.00152044018703522}
 {"ts":"2026-11-02T19:22:20.521Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00139510380151054}
+{"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.119972212529592}
+{"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":34,"layer":1,"price":62.7580994208844}
+{"ts":"2026-11-02T19:33:54.172Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":24,"layer":1,"price":0.0304120807703426}
