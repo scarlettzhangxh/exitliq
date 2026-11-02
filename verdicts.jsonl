@@ -70974,3 +70974,11 @@
 {"ts":"2026-11-02T19:09:16.716Z","chain":"robinhood","addr":"0x75d874378ae31b33ab9e7a40b4dca96134221111","sym":"LOBIN","sig":"PVE_MOMENT","score":85,"layer":10,"price":0.00150176629823818}
 {"ts":"2026-11-02T19:09:16.716Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":37,"layer":1,"price":62.9860974857209}
 {"ts":"2026-11-02T19:09:16.716Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00132388862899052}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.0176761027067066}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.120862112927595}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":24,"layer":2,"price":0.209514131766083}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":34,"layer":2,"price":0.100921386449573}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"base","addr":"0xed664536023d8e4b1640c394777d34abaff1df8f","sym":"POD","sig":"STRUCT_RISK","score":26,"layer":4,"price":0.50429235030018}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0xacc8de336f5d2366fa7334383d8fab73499f582a","sym":"FOREVER","sig":"PVE_MOMENT","score":74,"layer":6,"price":0.00637952137962319}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"robinhood","addr":"0x75d874378ae31b33ab9e7a40b4dca96134221111","sym":"LOBIN","sig":"PVE_MOMENT","score":85,"layer":10,"price":0.00152044018703522}
+{"ts":"2026-11-02T19:22:20.521Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00139510380151054}
