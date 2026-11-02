@@ -71004,3 +71004,16 @@
 {"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"jM9r9PJFyPaMEbhGZPbDeZJiysn2pfyz5TzdDs5pump","sym":"uni","sig":"STRUCT_RISK","score":16,"layer":1,"price":0.008352718612366307}
 {"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"8s4bNqEztH1JP7mkU747uMr7AckCQdiV47FDqYnDpump","sym":"ANAKIN","sig":"STRUCT_RISK","score":36,"layer":2,"price":0.0009886023474829852}
 {"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx","sym":"STONK","sig":"STRUCT_RISK","score":30,"layer":2,"price":0.10527791689653286}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"bsc","addr":"0x8c907e0a72c3d55627e853f4ec6a96b0c8771145","sym":"ZIG","sig":"STRUCT_RISK","score":31,"layer":1,"price":0.0412978143248884}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"bsc","addr":"0x2c3a8ee94ddd97244a93bc48298f97d2c412f7db","sym":"AKE","sig":"STRUCT_RISK","score":17,"layer":1,"price":0.00553333437335035}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"bsc","addr":"0x3b4de3c7855c03bb9f50ea252cd2c9fa1125ab07","sym":"IDOL","sig":"STRUCT_RISK","score":33,"layer":3,"price":0.0127963995435066}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":23,"layer":1,"price":0.0175196631927402}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"solana","addr":"8s4bNqEztH1JP7mkU747uMr7AckCQdiV47FDqYnDpump","sym":"ANAKIN","sig":"STRUCT_RISK","score":35,"layer":2,"price":0.0007892063159552683}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"bsc","addr":"0x5d3a12c42e5372b2cc3264ab3cdcf660a1555238","sym":"ARIA","sig":"NEUTRAL","score":51,"layer":7,"price":0.112987176927617}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":23,"layer":3,"price":0.204305998734091}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.119735533079313}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"robinhood","addr":"0xacc8de336f5d2366fa7334383d8fab73499f582a","sym":"FOREVER","sig":"PVE_MOMENT","score":74,"layer":6,"price":0.00673724510086903}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":31,"layer":1,"price":62.373359535306}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"robinhood","addr":"0x18e674231a58c239dc7daedcffe15ec3a24cff5c","sym":"HOOKR","sig":"STRUCT_RISK","score":28,"layer":5,"price":0.0159931863802933}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00134881102528387}
+{"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":25,"layer":1,"price":0.0303675397815913}
