@@ -71001,3 +71001,6 @@
 {"ts":"2026-11-02T20:00:28.087Z","chain":"bsc","addr":"0xc07e1300dc138601fa6b0b59f8d0fa477e690589","sym":"Q","sig":"STRUCT_RISK","score":21,"layer":5,"price":0.0255819133049266}
 {"ts":"2026-11-02T20:00:28.087Z","chain":"base","addr":"0x5be75e3b0aff5d1a042a5363ae36acb1d6d755ea","sym":"AXIS","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.119380021702814}
 {"ts":"2026-11-02T20:00:28.087Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00137010340285339}
+{"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"jM9r9PJFyPaMEbhGZPbDeZJiysn2pfyz5TzdDs5pump","sym":"uni","sig":"STRUCT_RISK","score":16,"layer":1,"price":0.008352718612366307}
+{"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"8s4bNqEztH1JP7mkU747uMr7AckCQdiV47FDqYnDpump","sym":"ANAKIN","sig":"STRUCT_RISK","score":36,"layer":2,"price":0.0009886023474829852}
+{"ts":"2026-11-02T20:12:14.980Z","chain":"solana","addr":"6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx","sym":"STONK","sig":"STRUCT_RISK","score":30,"layer":2,"price":0.10527791689653286}
