@@ -71017,3 +71017,7 @@
 {"ts":"2026-11-02T20:47:29.269Z","chain":"robinhood","addr":"0x18e674231a58c239dc7daedcffe15ec3a24cff5c","sym":"HOOKR","sig":"STRUCT_RISK","score":28,"layer":5,"price":0.0159931863802933}
 {"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.00134881102528387}
 {"ts":"2026-11-02T20:47:29.269Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":25,"layer":1,"price":0.0303675397815913}
+{"ts":"2026-11-02T20:59:17.045Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":23,"layer":1,"price":0.0176773750235581}
+{"ts":"2026-11-02T20:59:17.045Z","chain":"base","addr":"0xb20000000000000000000058b8c947e44011dfe6","sym":"NFLXc","sig":"STRUCT_RISK","score":32,"layer":1,"price":62.705999888256}
+{"ts":"2026-11-02T20:59:17.045Z","chain":"base","addr":"0x44b63af715d5ef02cc3646a6ce96875e11d69e85","sym":"RSGP","sig":"STRUCT_RISK","score":19,"layer":1,"price":0.0013528575507166}
+{"ts":"2026-11-02T20:59:17.045Z","chain":"base","addr":"0x9eadbe35f3ee3bf3e28180070c429298a1b02f93","sym":"LMTS","sig":"STRUCT_RISK","score":25,"layer":1,"price":0.0302994127621519}
