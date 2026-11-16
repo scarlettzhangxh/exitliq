@@ -87234,3 +87234,13 @@
 {"ts":"2026-11-16T18:20:45.823Z","chain":"base","addr":"0xed664536023d8e4b1640c394777d34abaff1df8f","sym":"POD","sig":"STRUCT_RISK","score":19,"layer":2,"price":0.367118919757696}
 {"ts":"2026-11-16T18:20:45.823Z","chain":"base","addr":"0xc0634090f2fe6c6d75e61be2b949464abb498973","sym":"KTA","sig":"STRUCT_RISK","score":26,"layer":2,"price":0.0444989192290604}
 {"ts":"2026-11-16T18:20:45.823Z","chain":"base","addr":"0x9b5e262cf9bb04869ab40b19af91d2dc85761722","sym":"NOCK","sig":"STRUCT_RISK","score":23,"layer":1,"price":0.0104813302137623}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":29,"layer":1,"price":0.0495181563883868}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":27,"layer":1,"price":0.429697507215295}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.119939542424493}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"robinhood","addr":"0x18e674231a58c239dc7daedcffe15ec3a24cff5c","sym":"HOOKR","sig":"STRUCT_RISK","score":22,"layer":7,"price":0.00943048416674935}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"robinhood","addr":"0xded852de9fe9ba9b6f27f39e8e81cf851a5c79cc","sym":"ROBINCAT","sig":"STRUCT_RISK","score":22,"layer":5,"price":0.00121456438999284}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"robinhood","addr":"0x2e8c31162b855a2ffa90f6f8634643ad6f111e18","sym":"AI","sig":"STRUCT_RISK","score":13,"layer":2,"price":0.0244364642798513}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"base","addr":"0x7ba6f01772924a82d9626c126347a28299e98c98","sym":"msETH","sig":"STRUCT_RISK","score":33,"layer":1,"price":1601.91613697756}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"base","addr":"0xc0634090f2fe6c6d75e61be2b949464abb498973","sym":"KTA","sig":"STRUCT_RISK","score":26,"layer":2,"price":0.0440715585586752}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"base","addr":"0xed664536023d8e4b1640c394777d34abaff1df8f","sym":"POD","sig":"STRUCT_RISK","score":19,"layer":2,"price":0.367118919757696}
+{"ts":"2026-11-16T18:32:38.218Z","chain":"base","addr":"0x9b5e262cf9bb04869ab40b19af91d2dc85761722","sym":"NOCK","sig":"STRUCT_RISK","score":23,"layer":1,"price":0.0105581860757162}
