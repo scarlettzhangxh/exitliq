@@ -89289,3 +89289,17 @@
 {"ts":"2026-11-18T16:54:32.084Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":22,"layer":2,"price":0.109099489330975}
 {"ts":"2026-11-18T16:54:32.084Z","chain":"robinhood","addr":"0x18e674231a58c239dc7daedcffe15ec3a24cff5c","sym":"HOOKR","sig":"STRUCT_RISK","score":27,"layer":5,"price":0.010065703860829}
 {"ts":"2026-11-18T16:54:32.084Z","chain":"robinhood","addr":"0x4db7374e966097be94c6680d49156d580f097bbf","sym":"TIBBIR","sig":"STRUCT_RISK","score":35,"layer":2,"price":0.141836364709337}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"solana","addr":"TTWofwAge91oFhZs7kpQdyrVRkmevgM88xijGvQFbKo","sym":"TTWO","sig":"PVP_CHURN","score":40,"layer":1,"price":219.20699911296606}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"bsc","addr":"0x2c3a8ee94ddd97244a93bc48298f97d2c412f7db","sym":"AKE","sig":"STRUCT_RISK","score":21,"layer":2,"price":0.00983419457277865}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"bsc","addr":"0x10d4183389e99233db3cc981c43443ebd28ebd5e","sym":"DGAI","sig":"STRUCT_RISK","score":32,"layer":1,"price":0.701426208275984}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"bsc","addr":"0x6bf62ca91e397b5a7d1d6bce97d9092065d7a510","sym":"CROSS","sig":"STRUCT_RISK","score":39,"layer":1,"price":0.159299931737213}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"base","addr":"0x8b7dde054be9d180c1be7fae0874697374a49832","sym":"PROS","sig":"PVP_CHURN","score":40,"layer":1,"price":0.602617178327697}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"bsc","addr":"0x086f405146ce90135750bbec9a063a8b20a8bffb","sym":"BREV","sig":"STRUCT_RISK","score":21,"layer":1,"price":0.0841958888280498}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"solana","addr":"ERiM8NiCanarGEnWMnURAoxTuTvUXZbtJsPTirnHpump","sym":"GTAVI","sig":"PVP_CHURN","score":18,"layer":1,"price":0.00036007178804715173}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":26,"layer":3,"price":0.016832224833232}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"solana","addr":"4kjruqGHDsSqkMdFfCjV7Vb62HPFhtXyWc2t6JpQzDnz","sym":"GTA6","sig":"STRUCT_RISK","score":28,"layer":1,"price":0.008185195213617909}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":21,"layer":1,"price":0.425611995082877}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"base","addr":"0xe0cd4cacddcbf4f36e845407ce53e87717b6601d","sym":"ICNT","sig":"STRUCT_RISK","score":36,"layer":6,"price":0.327581145828394}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.110207824880014}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.0420608010462507}
+{"ts":"2026-11-18T17:08:00.671Z","chain":"robinhood","addr":"0x18e674231a58c239dc7daedcffe15ec3a24cff5c","sym":"HOOKR","sig":"STRUCT_RISK","score":27,"layer":5,"price":0.010437415558004}
