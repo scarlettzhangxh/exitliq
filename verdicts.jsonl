@@ -94419,3 +94419,12 @@
 {"ts":"2026-11-22T21:23:38.002Z","chain":"solana","addr":"7R4MP6VX7n3RMNhL9zsk5Zu5ibZvwq8npUYnRq7epump","sym":"Singularity","sig":"STRUCT_RISK","score":38,"layer":2,"price":0.0006095041264211898}
 {"ts":"2026-11-22T21:23:38.002Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":28,"layer":2,"price":0.0437137239458004}
 {"ts":"2026-11-22T21:23:38.002Z","chain":"base","addr":"0xbf927b841994731c573bdf09ceb0c6b0aa887cdd","sym":"VELVET","sig":"STRUCT_RISK","score":32,"layer":2,"price":0.0718421368542043}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"base","addr":"0x29cc30f9d113b356ce408667aa6433589cecbdca","sym":"ELSA","sig":"STRUCT_RISK","score":37,"layer":3,"price":0.0850574446425356}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":26,"layer":1,"price":0.0146071332184268}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":30,"layer":1,"price":0.421996478044392}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"base","addr":"0xb20000000000000000000016e38fd364d271ba28","sym":"ANTc","sig":"STRUCT_RISK","score":28,"layer":1,"price":90.4859771688029}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"solana","addr":"3D7YQcnXi6RMjWxheiE8VLuGXJTtgQkmyugGYvzjpump","sym":"snowball","sig":"STRUCT_RISK","score":34,"layer":2,"price":0.00013220180502553858}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"solana","addr":"v4GK8f24ZJJa5qLoTJ4mJ5d6jsNUXHScwGaRHdfpump","sym":"MCAT","sig":"STRUCT_RISK","score":35,"layer":2,"price":0.00002016867049273408}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"solana","addr":"7R4MP6VX7n3RMNhL9zsk5Zu5ibZvwq8npUYnRq7epump","sym":"Singularity","sig":"STRUCT_RISK","score":37,"layer":2,"price":0.0005797555114433779}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"solana","addr":"4CxjZyMNoF1p6eXHXHv1TWpS2X47CuUmLwtGe18spump","sym":"mihao","sig":"STRUCT_RISK","score":31,"layer":8,"price":0.008144798959524682}
+{"ts":"2026-11-22T21:36:24.007Z","chain":"base","addr":"0xbf927b841994731c573bdf09ceb0c6b0aa887cdd","sym":"VELVET","sig":"STRUCT_RISK","score":32,"layer":2,"price":0.0716406989593528}
