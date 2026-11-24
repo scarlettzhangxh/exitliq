@@ -95559,3 +95559,13 @@
 {"ts":"2026-11-24T10:12:33.124Z","chain":"base","addr":"0xbf927b841994731c573bdf09ceb0c6b0aa887cdd","sym":"VELVET","sig":"STRUCT_RISK","score":29,"layer":2,"price":0.0780023207040692}
 {"ts":"2026-11-24T10:12:33.124Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":20,"layer":2,"price":0.0898169747885072}
 {"ts":"2026-11-24T10:12:33.124Z","chain":"robinhood","addr":"0x2e8c31162b855a2ffa90f6f8634643ad6f111e18","sym":"AI","sig":"STRUCT_RISK","score":11,"layer":4,"price":0.0169891581536495}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"robinhood","addr":"0xbbb6c29bcc3a1028a2b54310df73f4f7a3bcb373","sym":"ANT","sig":"PVP_CHURN","score":27,"layer":1,"price":84.1455095659054}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"robinhood","addr":"0x7de5699d584cd6cc1e22a7da3d603808eac7f088","sym":"Claude","sig":"STRUCT_RISK","score":31,"layer":1,"price":0.000102042135810007}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"base","addr":"0x29cc30f9d113b356ce408667aa6433589cecbdca","sym":"ELSA","sig":"NEUTRAL","score":47,"layer":4,"price":0.103798846185042}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"base","addr":"0xb2000000000000000000007b9fcbd005511acbd5","sym":"SPCXc","sig":"PVP_CHURN","score":30,"layer":1,"price":131.801003978698}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":23,"layer":1,"price":0.409735509695976}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"base","addr":"0x07b3d902783c3c12b077508c3b5c00113d1291d0","sym":"xdp","sig":"STRUCT_RISK","score":26,"layer":1,"price":0.0144600403902912}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":17,"layer":3,"price":0.0383469127490476}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"base","addr":"0xbf927b841994731c573bdf09ceb0c6b0aa887cdd","sym":"VELVET","sig":"STRUCT_RISK","score":29,"layer":2,"price":0.0779982690123763}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"robinhood","addr":"0x39dbed3a2bd333467115de45665cc57f813c4571","sym":"PONS","sig":"STRUCT_RISK","score":20,"layer":2,"price":0.0908239851120434}
+{"ts":"2026-11-24T10:25:05.602Z","chain":"robinhood","addr":"0x2e8c31162b855a2ffa90f6f8634643ad6f111e18","sym":"AI","sig":"STRUCT_RISK","score":11,"layer":4,"price":0.0169891581536495}
