@@ -97067,3 +97067,12 @@
 {"ts":"2026-11-25T23:28:41.881Z","chain":"base","addr":"0xb200000000000000000000f720c26062bc3067da","sym":"TTWOc","sig":"STRUCT_RISK","score":28,"layer":3,"price":225.848964426687}
 {"ts":"2026-11-25T23:28:41.881Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.395378494205021}
 {"ts":"2026-11-25T23:28:41.881Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":30,"layer":2,"price":0.0429797001613204}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"bsc","addr":"0xa5c8e1513b6a08334b479fe4d71f1253259469be","sym":"GUA","sig":"NEUTRAL","score":53,"layer":3,"price":0.0405638458380451}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"bsc","addr":"0xa991f61940095aea0724ef54077223b048c5cf7b","sym":"DNA","sig":"STRUCT_RISK","score":21,"layer":2,"price":0.128156100627796}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"bsc","addr":"0x10d4183389e99233db3cc981c43443ebd28ebd5e","sym":"DGAI","sig":"NEUTRAL","score":53,"layer":3,"price":0.991970637971033}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"base","addr":"0xb2000000000000000000007b9fcbd005511acbd5","sym":"SPCXc","sig":"STRUCT_RISK","score":33,"layer":1,"price":127.633845977835}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"base","addr":"0xb20000000000000000000016e38fd364d271ba28","sym":"ANTc","sig":"PVP_CHURN","score":32,"layer":1,"price":83.8000732475223}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"base","addr":"0x29cc30f9d113b356ce408667aa6433589cecbdca","sym":"ELSA","sig":"STRUCT_RISK","score":28,"layer":3,"price":0.0816593163338195}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"bsc","addr":"0xb0f09ea9ae0515c3551080d4a745c8115aa30e37","sym":"DOS","sig":"STRUCT_RISK","score":18,"layer":5,"price":0.0823213142925542}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"solana","addr":"38M2z4UCfZEkUHFzD48vhKQhFhNyRGto8pZbLjNipump","sym":"JIMMY","sig":"STRUCT_RISK","score":35,"layer":2,"price":0.000729896962218566}
+{"ts":"2026-11-25T23:42:41.854Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":22,"layer":1,"price":0.395378494205021}
