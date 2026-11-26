@@ -97354,3 +97354,15 @@
 {"ts":"2026-11-26T03:00:02.395Z","chain":"base","addr":"0x3f5bf3edac59d650d8fdf9657a71f2f904a3a4ee","sym":"AERO","sig":"STRUCT_RISK","score":27,"layer":1,"price":0.402371803858101}
 {"ts":"2026-11-26T03:00:02.395Z","chain":"robinhood","addr":"0x020bfc650a365f8bb26819deaabf3e21291018b4","sym":"CASHCAT","sig":"STRUCT_RISK","score":31,"layer":2,"price":0.0429416100656684}
 {"ts":"2026-11-26T03:00:02.395Z","chain":"robinhood","addr":"0x0ddcab9ae04bda0c87ecc1640636fa11e8e613e8","sym":"TEXEL","sig":"PVE_MOMENT","score":70,"layer":7,"price":0.00225873937133592}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"bsc","addr":"0x4fa7c69a7b69f8bc48233024d546bc299d6b03bf","sym":"quq","sig":"STRUCT_RISK","score":32,"layer":3,"price":0.00179368735247426}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"bsc","addr":"0x10d4183389e99233db3cc981c43443ebd28ebd5e","sym":"DGAI","sig":"NEUTRAL","score":52,"layer":3,"price":0.979337361317966}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"base","addr":"0xb2000000000000000000007b9fcbd005511acbd5","sym":"SPCXc","sig":"STRUCT_RISK","score":36,"layer":1,"price":128.769208057063}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"base","addr":"0xb20000000000000000000016e38fd364d271ba28","sym":"ANTc","sig":"PVP_CHURN","score":32,"layer":1,"price":84.7690636019116}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"robinhood","addr":"0xe92906149fef3599175f6b3fca3e96954388fb46","sym":"FIONA","sig":"STRUCT_RISK","score":41,"layer":2,"price":0.00392575196539385}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"base","addr":"0x29cc30f9d113b356ce408667aa6433589cecbdca","sym":"ELSA","sig":"STRUCT_RISK","score":31,"layer":3,"price":0.0834281801468591}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"bsc","addr":"0xb0f09ea9ae0515c3551080d4a745c8115aa30e37","sym":"DOS","sig":"STRUCT_RISK","score":18,"layer":5,"price":0.0777487593536606}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"bsc","addr":"0xaa036928c9c0df07d525b55ea8ee690bb5a628c1","sym":"EVAA","sig":"STRUCT_RISK","score":19,"layer":10,"price":2.80995297265583}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"solana","addr":"DVdWuNK8ncn79B6z8nCiwcNAiwyFcmBPfChgxJGTpump","sym":"4CHAN","sig":"STRUCT_RISK","score":28,"layer":2,"price":0.00013352757277309467}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"solana","addr":"5EmvWDizkpjAXbcfCcVq69w1id8GaLzi4LLwtuSgpump","sym":"Pompom","sig":"EXIT_LIQ","score":31,"layer":2,"price":0.0001568563506173058}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"solana","addr":"38M2z4UCfZEkUHFzD48vhKQhFhNyRGto8pZbLjNipump","sym":"JIMMY","sig":"STRUCT_RISK","score":35,"layer":2,"price":0.0006883971334920791}
+{"ts":"2026-11-26T03:14:59.973Z","chain":"base","addr":"0xb200000000000000000000f720c26062bc3067da","sym":"TTWOc","sig":"STRUCT_RISK","score":20,"layer":3,"price":226.917375655547}
